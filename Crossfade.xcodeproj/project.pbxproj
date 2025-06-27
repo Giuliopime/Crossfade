@@ -54,6 +54,29 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0910793C2E03748100CD25F6 /* Exceptions for "Crossfade" folder in "CrossfadeShareExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/AppleMusicClient.swift,
+				Core/ClientError.swift,
+				Core/Platform.swift,
+				Core/SongInfo.swift,
+				Core/SpotifyClient.swift,
+				View/ShareExtensionView.swift,
+			);
+			target = 09620C4E2DFE01D30073AA3B /* CrossfadeShareExtension */;
+		};
+		091079422E03752D00CD25F6 /* Exceptions for "Crossfade" folder in "CrossfadeWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/AppleMusicClient.swift,
+				Core/ClientError.swift,
+				Core/Platform.swift,
+				Core/SongInfo.swift,
+				Core/SpotifyClient.swift,
+			);
+			target = 09620C312DFE017A0073AA3B /* CrossfadeWidgetExtension */;
+		};
 		0954A43D2DFA30A8008FB77D /* Exceptions for "Crossfade" folder in "Crossfade" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -82,6 +105,8 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				0954A43D2DFA30A8008FB77D /* Exceptions for "Crossfade" folder in "Crossfade" target */,
+				091079422E03752D00CD25F6 /* Exceptions for "Crossfade" folder in "CrossfadeWidgetExtension" target */,
+				0910793C2E03748100CD25F6 /* Exceptions for "Crossfade" folder in "CrossfadeShareExtension" target */,
 			);
 			path = Crossfade;
 			sourceTree = "<group>";
@@ -342,6 +367,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 79VJQ9DB34;
@@ -361,12 +387,12 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.Crossfade;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.crossfade;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -386,6 +412,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 79VJQ9DB34;
@@ -405,12 +432,12 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.Crossfade;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.crossfade;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -568,7 +595,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.Crossfade.CrossfadeWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.crossfade.CrossfadeWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
@@ -607,7 +634,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.Crossfade.CrossfadeWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.crossfade.CrossfadeWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
@@ -636,7 +663,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.Crossfade.CrossfadeShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.crossfade.CrossfadeShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -663,7 +690,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.Crossfade.CrossfadeShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.giuliopime.crossfade.CrossfadeShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
