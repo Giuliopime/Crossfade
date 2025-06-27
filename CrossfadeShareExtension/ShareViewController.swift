@@ -5,26 +5,59 @@
 //  Created by Giulio Pimenoff Verdolin on 14/06/25.
 //
 
+import SwiftUI
 import UIKit
-import Social
+import UniformTypeIdentifiers
+import SwiftData
 
-class ShareViewController: SLComposeServiceViewController {
-
-    override func isContentValid() -> Bool {
-        // Do validation of contentText and/or NSExtensionContext attachments here
-        return true
-    }
-
-    override func didSelectPost() {
-        // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
+@objc(ShareViewController)
+class ShareViewController: UIViewController {
     
-        // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
-        self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        let urlDataType = UTType.url.identifier
+        
+        if let inputItem = (extensionContext?.inputItems.first as? NSExtensionItem),
+           let itemProvider = inputItem.attachments?.first {
+            if itemProvider.hasItemConformingToTypeIdentifier(urlDataType) {
+                itemProvider.loadItem(forTypeIdentifier: urlDataType, options: nil) { (url, error) in
+                    if error == nil {
+                        if let url = (url as? URL) {
+                            self.showView(url: url)
+                        }
+                    }
+                }
+            }
+        }
+        
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("close.share.extension"), object: nil, queue: nil) { _ in
+            DispatchQueue.main.async {
+                self.close()
+            }
+        }
     }
-
-    override func configurationItems() -> [Any]! {
-        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
-        return []
+    
+    func showView(url: URL) {
+        DispatchQueue.main.async {
+            let contentView = UIHostingController(
+                rootView: ShareExtensionView(url: url)
+                    .environment(AppleMusicClient())
+            )
+            self.addChild(contentView)
+            self.view.addSubview(contentView.view)
+            
+            // set up constraints
+            contentView.view.translatesAutoresizingMaskIntoConstraints = false
+            contentView.view.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+            contentView.view.bottomAnchor.constraint (equalTo: self.view.bottomAnchor).isActive = true
+            contentView.view.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
+            contentView.view.rightAnchor.constraint (equalTo: self.view.rightAnchor).isActive = true
+        }
     }
-
+    
+    /// Close the Share Extension
+    func close() {
+        self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+    }
 }
