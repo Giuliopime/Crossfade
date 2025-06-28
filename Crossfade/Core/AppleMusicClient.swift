@@ -30,11 +30,29 @@ class AppleMusicClient {
             let response = try await request.response()
             
             if let song = response.items.first {
-                return SongInfo(title: song.title, artistName: song.artistName)
+                return SongInfo(title: song.title, artistName: song.artistName, url: song.url)
             } else {
                 throw ClientError.songNotFound
             }
                 
+        } catch {
+            log.error("Failed to fetch song info: \(error)")
+            throw ClientError.unknown
+        }
+    }
+    
+    func fetchSongInfo(title: String, artistName: String) async throws -> SongInfo {
+        do {
+            var request = MusicCatalogSearchRequest(term: "\(artistName) - \(title)", types: [Song.self])
+            request.limit = 1
+            
+            let response = try await request.response()
+            
+            if let song = response.songs.first {
+                return SongInfo(title: song.title, artistName: song.artistName, url: song.url)
+            } else {
+                throw ClientError.songNotFound
+            }
         } catch {
             log.error("Failed to fetch song info: \(error)")
             throw ClientError.unknown

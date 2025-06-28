@@ -10,7 +10,9 @@ import MusicKit
 
 struct ShareExtensionView: View {
     @Environment(AppleMusicClient.self) private var appleMusicClient
-    
+    @Environment(SpotifyClient.self) private var spotifyClient
+    @Environment(\.openURL) private var openURL
+
     let url: URL
     
     @State private var loadingSongInfo = true
@@ -21,7 +23,7 @@ struct ShareExtensionView: View {
     
     @State private var appleMusicUrl: URL? = nil
     @State private var spotifyUrl: URL? = nil
-    @State private var soundcloudUrl: URL? = nil
+//    @State private var soundcloudUrl: URL? = nil
     
     private func load() async {
         guard let host = url.host() else {
@@ -33,9 +35,11 @@ struct ShareExtensionView: View {
             urlPlatform = .AppleMusic
         } else if (host.contains("spotify")) {
             urlPlatform = .Spotify
-        } else if (host.contains("soundcloud")) {
-            urlPlatform = .SoundCloud
-        } else {
+        }
+//        else if (host.contains("soundcloud")) {
+//            urlPlatform = .SoundCloud
+//        }
+        else {
             unsupportedPlatform = true
             return
         }
@@ -49,20 +53,39 @@ struct ShareExtensionView: View {
                 }
                 songInfo = try await appleMusicClient.fetchSongInfo(url: url)
             case .Spotify:
-                print("TODO")
-            case .SoundCloud:
-                print("TODO")
+                if (!spotifyClient.isAuthorized) {
+                    let authURL = spotifyClient.requestAuthorization()
+                    openURL(authURL)
+                    return
+                }
+                
+                songInfo = try await spotifyClient.fetchSongInfo(url: url)
+//            case .SoundCloud:
+//                print("TODO")
             case nil:
                 print("TODO")
             }
             
             loadingSongInfo = false
+            print("Song info loaded: \(String(describing: songInfo))")
             
-            // TODO: Fetch other platforms song link
-            appleMusicUrl = url
-            spotifyUrl = url
-            soundcloudUrl = url
+            guard let songInfo = songInfo else { return }
+            
+            switch urlPlatform {
+            case .AppleMusic:
+                let spotifySongInfo = try await spotifyClient.fetchSongInfo(title: songInfo.title, artistName: songInfo.artistName)
+                print("spotifySongInfo: \(String(describing: spotifySongInfo))")
+                spotifyUrl = spotifySongInfo.url
+            case .Spotify:
+                let appleMusicSongInfo = try await appleMusicClient.fetchSongInfo(title: songInfo.title, artistName: songInfo.artistName)
+                print("appleMusicSongInfo: \(String(describing: appleMusicSongInfo))")
+                appleMusicUrl = appleMusicSongInfo.url
+            case nil:
+                print("Would like to prevent nil from being handled")
+            }
         } catch {
+            print(error)
+            print("Failed")
             // TODO: Handle error
         }
     }
@@ -85,9 +108,9 @@ struct ShareExtensionView: View {
                         platformRow(url: spotifyUrl, platform: .Spotify)
                     }
                     
-                    if let soundcloudUrl = soundcloudUrl {
-                        platformRow(url: soundcloudUrl, platform: .SoundCloud)
-                    }
+//                    if let soundcloudUrl = soundcloudUrl {
+//                        platformRow(url: soundcloudUrl, platform: .SoundCloud)
+//                    }
                 }
             }
             .navigationTitle("Crossfader")
@@ -100,8 +123,6 @@ struct ShareExtensionView: View {
         }
         .onAppear {
             Task {
-                // TODO: Remove when logic is implemented
-//                try? await Task.sleep(nanoseconds: 2_000_000_000)
                 await load()
             }
         }
@@ -112,35 +133,59 @@ struct ShareExtensionView: View {
                 }
             }
         }
+        .onChange(of: spotifyClient.isAuthorized, initial: true) { _, newValue in
+            if newValue && urlPlatform == .Spotify {
+                Task {
+                    await load()
+                }
+            }
+        }
     }
     
     var songInfoView: some View {
         VStack {
             Text(songInfo?.title ?? "Loading title...")
+                .multilineTextAlignment(.center)
             Text(songInfo?.artistName ?? "Loading author...")
+                .multilineTextAlignment(.center)
         }.frame(maxWidth: .infinity)
     }
     
-    func platformRow(url: URL?, platform: Platform) -> some View {
+    func platformRow(url: URL, platform: Platform) -> some View {
         HStack(spacing: 16) {
             // TODO: Platform logo before name
             Text(platform.readableName)
             Spacer()
             
             Button("Copy", systemImage: "document.on.document") {
-                
+                UIPasteboard.general.string = url.absoluteString
             }
             .labelStyle(.iconOnly)
             .buttonStyle(.borderless)
             
-            Button("Share", systemImage: "square.and.arrow.up") {
-                
-            }
-            .labelStyle(.iconOnly)
-            .buttonStyle(.borderless)
+            ShareLink(item: url)
+                .labelStyle(.iconOnly)
+                .buttonStyle(.borderless)
+            
+//            Button("Share", systemImage: "square.and.arrow.up") {
+//                if let url = url {
+//#if os(iOS)
+//                    let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+//                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//                       let window = windowScene.windows.first {
+//                        window.rootViewController?.present(activityVC, animated: true)
+//                    }
+//#elseif os(macOS)
+//                    let picker = NSSharingServicePicker(items: [url])
+//                    picker.show(relativeTo: .zero, of: NSView(), preferredEdge: .minY)
+//#endif
+//                }
+//            }
+//            .labelStyle(.iconOnly)
+//            .buttonStyle(.borderless)
             
             Button("Open", systemImage: "arrow.up.right") {
-                
+                openURL(url)
             }
             .labelStyle(.iconOnly)
             .buttonStyle(.borderless)

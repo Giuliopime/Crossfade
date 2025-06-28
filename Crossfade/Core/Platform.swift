@@ -8,7 +8,7 @@
 enum Platform {
     case AppleMusic;
     case Spotify;
-    case SoundCloud;
+//    case SoundCloud;
     
     var readableName: String {
         switch self {
@@ -16,8 +16,8 @@ enum Platform {
             "Apple Music"
         case .Spotify:
             "Spotify"
-        case .SoundCloud:
-            "SoundCloud"
+//        case .SoundCloud:
+//            "SoundCloud"
         }
     }
 }

@@ -11,12 +11,24 @@ import SwiftData
 @main
 struct CrossfadeApp: App {
     @State private var appleMusicClient = AppleMusicClient()
+    @State private var spotifyClient = SpotifyClient()
+    
+    private func handleCustomURLScheme(_ url: URL) {
+        if url.absoluteString.contains(SpotifyClient.REDIRECT_URI) {
+            spotifyClient.handleAuthorizationRedirectURI(url)
+        }
+    }
     
     var body: some Scene {
         WindowGroup {
 //            ContentView()
-            ShareExtensionView(url: URL(string: "https://music.apple.com/it/album/invisible-touch-2007-remaster/396483774?i=396483776&l=en-GB")!)
+            ShareExtensionView(url: URL(string: "https://open.spotify.com/track/3xby7fOyqmeON8jsnom0AT?si=0670b48186734858")!)
+                .environment(appleMusicClient)
+                .environment(spotifyClient)
+                .onOpenURL { url in
+                    handleCustomURLScheme(url)
+                }
         }
-        .environment(appleMusicClient)
+        
     }
 }

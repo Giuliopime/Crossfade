@@ -10,8 +10,8 @@ import Foundation
 enum ClientError : Error {
     case invalidURL
     case songNotFound
+    case unauthenticated
     case unknown
-    
 }
 
 extension ClientError: LocalizedError {
@@ -19,6 +19,9 @@ extension ClientError: LocalizedError {
         switch self {
         case .invalidURL:
             return NSLocalizedString("Could not find the song matching the provided URL", comment: "Invalid song URL error")
+            
+        case .unauthenticated:
+            return NSLocalizedString("You need to authenticate to use this feature", comment: "Unauthenticated error")
             
         case .songNotFound:
             return NSLocalizedString("Song not found", comment: "Song not found error")

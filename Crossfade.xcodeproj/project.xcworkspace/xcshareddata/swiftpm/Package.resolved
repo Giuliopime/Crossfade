@@ -1,0 +1,60 @@
+{
+  "originHash" : "c27170e0274abd9a8a18953f10eec26225f01ddc8aefb08403ef332aa6dd9eaa",
+  "pins" : [
+    {
+      "identity" : "keychainaccess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kishikawakatsumi/KeychainAccess",
+      "state" : {
+        "branch" : "master",
+        "revision" : "e0c7eebc5a4465a3c4680764f26b7a61f567cdaf"
+      }
+    },
+    {
+      "identity" : "opencombine",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/OpenCombine/OpenCombine.git",
+      "state" : {
+        "revision" : "8576f0d579b27020beccbccc3ea6844f3ddfc2c2",
+        "version" : "0.14.0"
+      }
+    },
+    {
+      "identity" : "regularexpressions",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Peter-Schorn/RegularExpressions.git",
+      "state" : {
+        "revision" : "b27140d0bd3a9a1e61f2324f644219be98eb3311",
+        "version" : "2.2.0"
+      }
+    },
+    {
+      "identity" : "spotifyapi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Peter-Schorn/SpotifyAPI",
+      "state" : {
+        "revision" : "391af49951fa2a854f63bde1e6f6726ba2763da7",
+        "version" : "4.0.2"
+      }
+    },
+    {
+      "identity" : "swift-crypto",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-crypto.git",
+      "state" : {
+        "revision" : "ddb07e896a2a8af79512543b1c7eb9797f8898a5",
+        "version" : "1.1.7"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "3d8596ed08bd13520157f0355e35caed215ffbfa",
+        "version" : "1.6.3"
+      }
+    }
+  ],
+  "version" : 3
+}

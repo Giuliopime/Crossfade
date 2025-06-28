@@ -43,6 +43,7 @@ class ShareViewController: UIViewController {
             let contentView = UIHostingController(
                 rootView: ShareExtensionView(url: url)
                     .environment(AppleMusicClient())
+                    .environment(SpotifyClient())
             )
             self.addChild(contentView)
             self.view.addSubview(contentView.view)
