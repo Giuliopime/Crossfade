@@ -11,7 +11,7 @@ enum ClientError : Error {
     case invalidURL
     case songNotFound
     case unauthenticated
-    case unknown
+    case unknown(Error)
 }
 
 extension ClientError: LocalizedError {

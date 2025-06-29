@@ -36,7 +36,7 @@ class SpotifyClient {
     static let authorizationManagerKey = "authorizationManager"
     
     /// The keychain to store the authorization information in.
-    private let keychain = Keychain(service: Identifiers.bundle_id)
+    private let keychain = Keychain(service: Identifiers.keychain_sharing_service, accessGroup: Identifiers.keychain_group)
     
     /**
      Whether or not the application has been authorized. If `true`, then you can
@@ -103,7 +103,6 @@ class SpotifyClient {
         else {
             print("did not find authorization information in keychain")
         }
-        
     }
     
     func requestAuthorization() -> URL {
@@ -208,7 +207,7 @@ class SpotifyClient {
         codeChallengeState = String.randomURLSafe(length: 128)
     }
     
-    func fetchSongInfo(url: URL) async throws -> SongInfo {
+    func fetchTrackInfo(url: URL) async throws -> Track {
         // Extract track ID from Spotify URL
         guard let trackID = extractTrackID(from: url) else {
             throw ClientError.invalidURL
@@ -219,25 +218,19 @@ class SpotifyClient {
         do {
             let track = try await spotify.track("spotify:track:\(trackID)").awaitSingleValue()
             
-            log.debug("track: \(String(describing: track))")
-            
             if let track = track {
-                return SongInfo(
-                    title: track.name,
-                    artistName: track.artists?.first?.name ?? "Unknown artist",
-                    url: track.href
-                )
+                return track
             } else {
                 throw ClientError.songNotFound
             }
             
         } catch {
             log.error("Failed to fetch Spotify song info: \(error)")
-            throw ClientError.unknown
+            throw ClientError.unknown(error)
         }
     }
     
-    func fetchSongInfo(title: String, artistName: String) async throws -> SongInfo {
+    func fetchTrackInfo(title: String, artistName: String) async throws -> Track {
         let query = "\(title) - \(artistName)"
         
         do {
@@ -248,14 +241,14 @@ class SpotifyClient {
             ).awaitSingleValue()
             
             if let track = searchResult?.tracks?.items.first {
-                return SongInfo(title: track.name, artistName: track.artists?.first?.name ?? "Unknown artist", url: track.href)
+                return track
             } else {
                 throw ClientError.songNotFound
             }
             
         } catch {
             log.error("Failed to search for Spotify song info: \(error)")
-            throw ClientError.unknown
+            throw ClientError.unknown(error)
         }
     }
     

@@ -15,13 +15,19 @@ fileprivate let log = Logger(subsystem: "App", category: "AppleMusicClient")
 class AppleMusicClient {
     var authStatus: MusicAuthorization.Status = .notDetermined
     
+    @concurrent
     func requestAuthorization() async {
-        authStatus = await MusicAuthorization.request()
+        let newStatus = await MusicAuthorization.request()
+        
+        await MainActor.run {
+            authStatus = newStatus
+        }
     }
     
-    func fetchSongInfo(url: URL) async throws -> SongInfo {
+    @concurrent
+    func fetchTrackInfo(url: URL) async throws -> Song {
         do {
-            guard let songID = extractSongID(from: url) else {
+            guard let songID = await extractSongID(from: url) else {
                 throw ClientError.invalidURL
             }
             
@@ -29,33 +35,34 @@ class AppleMusicClient {
             let request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: itemID)
             let response = try await request.response()
             
-            if let song = response.items.first {
-                return SongInfo(title: song.title, artistName: song.artistName, url: song.url)
+            if let track = response.items.first {
+                return track
             } else {
                 throw ClientError.songNotFound
             }
                 
         } catch {
-            log.error("Failed to fetch song info: \(error)")
-            throw ClientError.unknown
+            await log.error("Failed to fetch song info: \(error)")
+            throw ClientError.unknown(error)
         }
     }
     
-    func fetchSongInfo(title: String, artistName: String) async throws -> SongInfo {
+    @concurrent
+    func fetchTrackInfo(title: String, artistName: String) async throws -> Song {
         do {
             var request = MusicCatalogSearchRequest(term: "\(artistName) - \(title)", types: [Song.self])
             request.limit = 1
             
             let response = try await request.response()
             
-            if let song = response.songs.first {
-                return SongInfo(title: song.title, artistName: song.artistName, url: song.url)
+            if let track = response.songs.first {
+                return track
             } else {
                 throw ClientError.songNotFound
             }
         } catch {
-            log.error("Failed to fetch song info: \(error)")
-            throw ClientError.unknown
+            await log.error("Failed to fetch song info: \(error)")
+            throw ClientError.unknown(error)
         }
     }
     
