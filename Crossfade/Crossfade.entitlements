@@ -7,14 +7,12 @@
 	<key>com.apple.developer.aps-environment</key>
 	<string>development</string>
 	<key>com.apple.developer.icloud-container-identifiers</key>
-	<array/>
+	<array>
+		<string>iCloud.dev.giuliopime.crossfade.container-01</string>
+	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>
 		<string>CloudKit</string>
-	</array>
-	<key>com.apple.security.application-groups</key>
-	<array>
-		<string>group.app.index-it.index</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>

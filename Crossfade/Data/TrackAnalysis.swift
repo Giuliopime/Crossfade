@@ -13,17 +13,20 @@ import SpotifyWebAPI
 @Model
 class TrackAnalysis {
     /// Composite ID: {platform_id}:{platform_track_id}
-    @Attribute(.unique) var id: String
-    var title: String
+    // @Attribute(.unique) - not supported by CloudKit, also CloudKit requires that all attributes are optional or have a default value set
+    var id: String = "unknown:\(UUID().uuidString)"
+    var title: String = "Unknown"
     var artworkURL: String?
-    var artistName: String
+    var artistName: String = "Unknown"
     var albumTitle: String?
     var isrc: String?
     
     var appleMusicURL: String?
     var spotifyURL: String?
     
-    init(id: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil) {
+    var dateAnalyzed: Date = Date.now
+    
+    init(id: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil, dateAnalyzed: Date = Date.now) {
         self.id = id
         self.title = title
         self.artworkURL = artworkURL
@@ -32,9 +35,10 @@ class TrackAnalysis {
         self.isrc = isrc
         self.appleMusicURL = appleMusicURL
         self.spotifyURL = spotifyURL
+        self.dateAnalyzed = dateAnalyzed
     }
     
-    convenience init(platform: Platform, platformID: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil) {
+    convenience init(platform: Platform, platformID: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil, dateAnalyzed: Date = Date.now) {
         self.init(
             id: "\(platform.id):\(platformID)",
             title: title,
@@ -43,11 +47,12 @@ class TrackAnalysis {
             albumTitle: albumTitle,
             isrc: isrc,
             appleMusicURL: appleMusicURL,
-            spotifyURL: spotifyURL
+            spotifyURL: spotifyURL,
+            dateAnalyzed: dateAnalyzed
         )
     }
     
-    convenience init(_ track: MusicKit.Song) {
+    convenience init(_ track: MusicKit.Song, dateAnalyzed: Date = Date.now) {
         self.init(
             platform: .AppleMusic,
             platformID: track.id.rawValue,
@@ -57,11 +62,12 @@ class TrackAnalysis {
             albumTitle: track.albumTitle,
             isrc: track.isrc,
             appleMusicURL: track.url?.absoluteString,
-            spotifyURL: nil
+            spotifyURL: nil,
+            dateAnalyzed: dateAnalyzed
         )
     }
     
-    convenience init(_ track: SpotifyWebAPI.Track) {
+    convenience init(_ track: SpotifyWebAPI.Track, dateAnalyzed: Date = Date.now) {
         self.init(
             platform: .Spotify,
             platformID: track.id ?? UUID().uuidString,
@@ -71,8 +77,23 @@ class TrackAnalysis {
             albumTitle: track.album?.name,
             isrc: track.externalIds?["isrc"],
             appleMusicURL: nil,
-            spotifyURL: track.externalURLs?["spotify"]?.absoluteString
+            spotifyURL: track.externalURLs?["spotify"]?.absoluteString,
+            dateAnalyzed: Date.now
         )
+    }
+    
+    var platformsCount: Int {
+        var count = 0
+        
+        if appleMusicURL != nil {
+            count += 1
+        }
+        
+        if spotifyURL != nil {
+            count += 1
+        }
+        
+        return count
     }
     
     func url(for platform: Platform) -> URL? {
@@ -97,7 +118,8 @@ class TrackAnalysis {
         artistName: String = "Mock Artist",
         albumTitle: String = "Mock Album",
         isrc: String = "X00000000000",
-        appleMusicURL: String = "https://music.apple.com/mock"
+        appleMusicURL: String = "https://music.apple.com/mock",
+        dateAnalyzed: Date = Date.now
     ) -> TrackAnalysis {
         .init(
             id: id,
@@ -106,7 +128,8 @@ class TrackAnalysis {
             artistName: artistName,
             albumTitle: albumTitle,
             isrc: isrc,
-            appleMusicURL: appleMusicURL
+            appleMusicURL: appleMusicURL,
+            dateAnalyzed: dateAnalyzed
         )
     }
 }

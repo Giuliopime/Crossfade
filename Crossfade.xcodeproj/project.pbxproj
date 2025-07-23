@@ -12,6 +12,7 @@
 		09ACCB332E0FE7FC00D6AD9E /* SpotifyAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 09ACCB322E0FE7FC00D6AD9E /* SpotifyAPI */; };
 		09ACCB392E0FE9F000D6AD9E /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 09ACCB382E0FE9F000D6AD9E /* KeychainAccess */; };
 		09ACCB3B2E0FEB9F00D6AD9E /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 09ACCB3A2E0FEB9F00D6AD9E /* KeychainAccess */; };
+		09E393BF2E31981C005CCBCF /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09E393BE2E31981C005CCBCF /* StoreKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,12 +44,15 @@
 		09620C342DFE017A0073AA3B /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = /System/Library/Frameworks/WidgetKit.framework; sourceTree = "<absolute>"; };
 		09620C362DFE017A0073AA3B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = /System/Library/Frameworks/SwiftUI.framework; sourceTree = "<absolute>"; };
 		09620C4F2DFE01D30073AA3B /* CrossfadeShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CrossfadeShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		09E393BE2E31981C005CCBCF /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		0910793C2E03748100CD25F6 /* Exceptions for "Crossfade" folder in "CrossfadeShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Assets.xcassets,
+				Core/AppStorageKeys.swift,
 				Core/Clients/AppleMusicClient.swift,
 				Core/Clients/ClientError.swift,
 				Core/Clients/SpotifyClient.swift,
@@ -56,6 +60,7 @@
 				Core/Extensions/SpotifyTrackExtension.swift,
 				Core/Identifiers.swift,
 				Core/Platform.swift,
+				Core/PlatformBehaviour.swift,
 				Data/TrackAnalysis.swift,
 				View/ShareExtensionView.swift,
 				View/TrackAnalysisView.swift,
@@ -104,6 +109,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				09E393BF2E31981C005CCBCF /* StoreKit.framework in Frameworks */,
 				09ACCB392E0FE9F000D6AD9E /* KeychainAccess in Frameworks */,
 				09ACCAF42E0FD86700D6AD9E /* SpotifyAPI in Frameworks */,
 			);
@@ -143,6 +149,7 @@
 		09620C332DFE017A0073AA3B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				09E393BE2E31981C005CCBCF /* StoreKit.framework */,
 				09620C342DFE017A0073AA3B /* WidgetKit.framework */,
 				09620C362DFE017A0073AA3B /* SwiftUI.framework */,
 			);
@@ -290,10 +297,11 @@
 		0954A43F2DFA30A8008FB77D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = CrossfadeLogo;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Crossfade/Crossfade.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 79VJQ9DB34;
@@ -303,6 +311,8 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Crossfade/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Crossfade;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Query song information from Apple Music";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -314,7 +324,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
@@ -337,10 +347,11 @@
 		0954A4402DFA30A8008FB77D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = CrossfadeLogo;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Crossfade/Crossfade.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 79VJQ9DB34;
@@ -350,6 +361,8 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Crossfade/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Crossfade;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Query song information from Apple Music";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -361,7 +374,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
@@ -506,7 +519,7 @@
 				DEVELOPMENT_TEAM = 79VJQ9DB34;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CrossfadeShareExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = CrossfadeShareExtension;
+				INFOPLIST_KEY_CFBundleDisplayName = "Analyze with Crossfade";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -534,7 +547,7 @@
 				DEVELOPMENT_TEAM = 79VJQ9DB34;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CrossfadeShareExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = CrossfadeShareExtension;
+				INFOPLIST_KEY_CFBundleDisplayName = "Analyze with Crossfade";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (

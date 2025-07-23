@@ -8,6 +8,7 @@
 import SwiftUI
 import MusicKit
 import os
+import SwiftData
 
 fileprivate let log = Logger(subsystem: "App", category: "ShareExtensionView")
 
@@ -29,6 +30,7 @@ fileprivate enum ViewState {
 struct ShareExtensionView: View {
     @Environment(AppleMusicClient.self) private var appleMusicClient
     @Environment(SpotifyClient.self) private var spotifyClient
+    @Environment(\.modelContext) private var context
     @Environment(\.openURL) private var openURL
 
     let url: URL
@@ -40,7 +42,6 @@ struct ShareExtensionView: View {
     // MARK: - Data Loading
     
     private func load() async {
-        log.debug("Loading song info from url \(url.absoluteString)")
         viewState = .loading
         
         guard let host = url.host() else {
@@ -64,12 +65,15 @@ struct ShareExtensionView: View {
         do {
             switch urlPlatform {
             case .AppleMusic:
+                if (appleMusicClient.authStatus != .authorized) {
+                    viewState = .needsAuthorization(.AppleMusic)
+                    return
+                }
                 let track = try await appleMusicClient.fetchTrackInfo(url: url)
                 trackAnalysis = TrackAnalysis(track)
             case .Spotify:
                 if (!spotifyClient.isAuthorized) {
-                    let authURL = spotifyClient.requestAuthorization()
-                    openURL(authURL)
+                    viewState = .needsAuthorization(.Spotify)
                     return
                 }
                 let track = try await spotifyClient.fetchTrackInfo(url: url)
@@ -89,6 +93,9 @@ struct ShareExtensionView: View {
             }
             
             loadedPlatformAvailability = true
+            
+            // store in the database
+            context.insert(trackAnalysis)
         } catch {
             print("Failed \(error)")
             viewState = .error(error)

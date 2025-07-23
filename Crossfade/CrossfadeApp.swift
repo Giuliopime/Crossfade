@@ -21,10 +21,11 @@ struct CrossfadeApp: App {
     
     var body: some Scene {
         WindowGroup {
-//            ContentView()
-            ShareExtensionView(url: URL(string: "https://open.spotify.com/track/3xby7fOyqmeON8jsnom0AT?si=0670b48186734858")!)
+            ContentView()
+//            ShareExtensionView(url: URL(string: "https://open.spotify.com/track/3xby7fOyqmeON8jsnom0AT?si=0670b48186734858")!)
                 .environment(appleMusicClient)
                 .environment(spotifyClient)
+                .modelContainer(for: [TrackAnalysis.self])
                 .onOpenURL { url in
                     handleCustomURLScheme(url)
                 }

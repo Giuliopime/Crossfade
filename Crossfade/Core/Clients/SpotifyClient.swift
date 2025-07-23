@@ -116,6 +116,10 @@ class SpotifyClient {
         )!
     }
     
+    func deauthorize() {
+        spotify.authorizationManager.deauthorize()
+    }
+    
     func handleAuthorizationRedirectURI(_ url: URL) {
         spotify.authorizationManager.requestAccessAndRefreshTokens(
             redirectURIWithQuery: url,

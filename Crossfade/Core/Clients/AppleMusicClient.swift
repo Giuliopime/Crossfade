@@ -14,14 +14,23 @@ fileprivate let log = Logger(subsystem: "App", category: "AppleMusicClient")
 @Observable
 class AppleMusicClient {
     var authStatus: MusicAuthorization.Status = .notDetermined
+    var isAuthorized: Bool {
+        return authStatus == .authorized
+    }
+    
+    init() {
+        self.authStatus = MusicAuthorization.currentStatus
+    }
     
     @concurrent
-    func requestAuthorization() async {
+    func requestAuthorization() async -> MusicAuthorization.Status {
         let newStatus = await MusicAuthorization.request()
         
         await MainActor.run {
             authStatus = newStatus
         }
+        
+        return newStatus
     }
     
     @concurrent

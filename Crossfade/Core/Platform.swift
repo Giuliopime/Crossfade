@@ -5,7 +5,9 @@
 //  Created by Giulio Pimenoff Verdolin on 19/06/25.
 //
 
-enum Platform: Identifiable {
+import Foundation
+
+enum Platform: Identifiable, Codable, Equatable {
     case AppleMusic;
     case Spotify;
     
@@ -21,9 +23,28 @@ enum Platform: Identifiable {
     var readableName: String {
         switch self {
         case .AppleMusic:
-            "Apple Music"
+            NSLocalizedString("Apple Music", comment: "Apple Music platform name")
         case .Spotify:
-            "Spotify"
+            NSLocalizedString("Spotify", comment: "Spotify platform name")
         }
     }
 }
+
+extension Platform: RawRepresentable {
+    
+    public init?(rawValue: String) {
+        switch rawValue {
+        case Platform.AppleMusic.id:
+            self = Platform.AppleMusic
+        case Platform.Spotify.id:
+            self = Platform.Spotify
+        default:
+            self = Platform.AppleMusic
+        }
+    }
+
+    public var rawValue: String {
+        return id
+    }
+}
+

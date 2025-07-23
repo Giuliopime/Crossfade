@@ -10,13 +10,29 @@ import SwiftData
 
 struct ContentView: View {
     var body: some View {
-        TabView {
-            Tab("History", systemImage: "clock") {
+        if #available(iOS 18.0, *) {
+            TabView {
+                Tab("History", systemImage: "clock") {
+                    HistoryTabView()
+                }
                 
+                Tab("Settings", systemImage: "gearshape") {
+                    SettingsTabView()
+                }
             }
-            
-            Tab("Settings", systemImage: "gearshape") {
+        } else {
+            TabView {
+                HistoryTabView()
+                    .tabItem {
+                        Image(systemName: "clock")
+                        Text("History")
+                    }
                 
+                SettingsTabView()
+                    .tabItem {
+                        Image(systemName: "gearshape")
+                        Text("Settings")
+                    }
             }
         }
     }

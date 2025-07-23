@@ -42,11 +42,28 @@ struct TrackAnalysisView: View {
                     if let spotifyURL = trackAnalysis.url(for: .Spotify) {
                         platformAvailabilityRow(url: spotifyURL, platform: .Spotify)
                     }
-                } header: {
-                    Text("Platform availability")
                     
-                    if !loadedPlatformAvailability {
-                        ProgressView()
+                    if loadedPlatformAvailability && trackAnalysis.platformsCount < 2 {
+                        Button {
+                            
+                        } label: {
+                            Label("Configure platforms", systemImage: "plus")
+                        }
+                    }
+                } header: {
+                    HStack {
+                        if !loadedPlatformAvailability {
+                            ProgressView()
+                        } else {
+                            Button {
+                                // TODO: Open app with settings page
+                            } label: {
+                                Label("Configure platforms", systemImage: "gearshape")
+                                    .labelStyle(.iconOnly)
+                            }
+                        }
+                        
+                        Text("Platform availability")
                     }
                 }
             }
@@ -86,8 +103,21 @@ struct TrackAnalysisView: View {
     
     private func platformAvailabilityRow(url: URL, platform: Platform) -> some View {
         HStack(spacing: 16) {
-            // TODO: Platform logo before name
-            Text(platform.readableName)
+            HStack {
+                switch platform {
+                case .AppleMusic:
+                    Image("logo_apple_music")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 28)
+                case .Spotify:
+                    Image("logo_spotify")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 28)
+                }
+                Text(platform.readableName)
+            }
             Spacer()
             
             Button("Copy", systemImage: "document.on.document") {
@@ -122,7 +152,7 @@ struct TrackAnalysisView: View {
                 artistName: "Eat Static",
                 albumTitle: "Implant (2021 Expanded & Remastered Edition)"
             ),
-            loadedPlatformAvailability: false
+            loadedPlatformAvailability: true
         )
         .navigationTitle("Crossfade")
         .navigationBarTitleDisplayMode(.inline)
