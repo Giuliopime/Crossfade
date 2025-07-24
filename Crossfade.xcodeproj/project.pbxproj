@@ -13,6 +13,10 @@
 		09ACCB392E0FE9F000D6AD9E /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 09ACCB382E0FE9F000D6AD9E /* KeychainAccess */; };
 		09ACCB3B2E0FEB9F00D6AD9E /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 09ACCB3A2E0FEB9F00D6AD9E /* KeychainAccess */; };
 		09E393BF2E31981C005CCBCF /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09E393BE2E31981C005CCBCF /* StoreKit.framework */; };
+		09E393D12E31BBFF005CCBCF /* CloudStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 09E393D02E31BBFF005CCBCF /* CloudStorage */; };
+		09E393D32E31BC03005CCBCF /* CloudStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 09E393D22E31BC03005CCBCF /* CloudStorage */; };
+		09E393D92E31BE93005CCBCF /* SoundCloud in Frameworks */ = {isa = PBXBuildFile; productRef = 09E393D82E31BE93005CCBCF /* SoundCloud */; };
+		09E393DB2E31BE98005CCBCF /* SoundCloud in Frameworks */ = {isa = PBXBuildFile; productRef = 09E393DA2E31BE98005CCBCF /* SoundCloud */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,13 +59,17 @@
 				Core/AppStorageKeys.swift,
 				Core/Clients/AppleMusicClient.swift,
 				Core/Clients/ClientError.swift,
+				Core/Clients/SoundCloudClient.swift,
 				Core/Clients/SpotifyClient.swift,
+				Core/CloudKeyValueKeys.swift,
 				Core/Extensions/PublisherExtension.swift,
 				Core/Extensions/SpotifyTrackExtension.swift,
 				Core/Identifiers.swift,
 				Core/Platform.swift,
 				Core/PlatformBehaviour.swift,
+				Core/URLSchemeParser.swift,
 				Data/TrackAnalysis.swift,
+				View/Navigation/HomeTab.swift,
 				View/ShareExtensionView.swift,
 				View/TrackAnalysisView.swift,
 				View/Util/ColorExtension.swift,
@@ -109,8 +117,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				09E393D12E31BBFF005CCBCF /* CloudStorage in Frameworks */,
 				09E393BF2E31981C005CCBCF /* StoreKit.framework in Frameworks */,
 				09ACCB392E0FE9F000D6AD9E /* KeychainAccess in Frameworks */,
+				09E393DB2E31BE98005CCBCF /* SoundCloud in Frameworks */,
 				09ACCAF42E0FD86700D6AD9E /* SpotifyAPI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -120,6 +130,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				09ACCB3B2E0FEB9F00D6AD9E /* KeychainAccess in Frameworks */,
+				09E393D32E31BC03005CCBCF /* CloudStorage in Frameworks */,
+				09E393D92E31BE93005CCBCF /* SoundCloud in Frameworks */,
 				09ACCB332E0FE7FC00D6AD9E /* SpotifyAPI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -180,6 +192,8 @@
 			packageProductDependencies = (
 				09ACCAF32E0FD86700D6AD9E /* SpotifyAPI */,
 				09ACCB382E0FE9F000D6AD9E /* KeychainAccess */,
+				09E393D02E31BBFF005CCBCF /* CloudStorage */,
+				09E393DA2E31BE98005CCBCF /* SoundCloud */,
 			);
 			productName = Crossfade;
 			productReference = 0954A4302DFA30A7008FB77D /* Crossfade.app */;
@@ -204,6 +218,8 @@
 			packageProductDependencies = (
 				09ACCB322E0FE7FC00D6AD9E /* SpotifyAPI */,
 				09ACCB3A2E0FEB9F00D6AD9E /* KeychainAccess */,
+				09E393D22E31BC03005CCBCF /* CloudStorage */,
+				09E393D82E31BE93005CCBCF /* SoundCloud */,
 			);
 			productName = CrossfadeShareExtension;
 			productReference = 09620C4F2DFE01D30073AA3B /* CrossfadeShareExtension.appex */;
@@ -239,6 +255,8 @@
 			packageReferences = (
 				09ACCAF22E0FD86700D6AD9E /* XCRemoteSwiftPackageReference "SpotifyAPI" */,
 				09ACCB372E0FE9F000D6AD9E /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				09E393CF2E31BBEF005CCBCF /* XCRemoteSwiftPackageReference "CloudStorage" */,
+				09E393D72E31BE86005CCBCF /* XCRemoteSwiftPackageReference "SoundCloud-Swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0954A4312DFA30A7008FB77D /* Products */;
@@ -616,6 +634,22 @@
 				kind = branch;
 			};
 		};
+		09E393CF2E31BBEF005CCBCF /* XCRemoteSwiftPackageReference "CloudStorage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nonstrict-hq/CloudStorage";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.7.0;
+			};
+		};
+		09E393D72E31BE86005CCBCF /* XCRemoteSwiftPackageReference "SoundCloud-Swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/superturboryan/SoundCloud-Swift/";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -638,6 +672,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 09ACCB372E0FE9F000D6AD9E /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;
+		};
+		09E393D02E31BBFF005CCBCF /* CloudStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 09E393CF2E31BBEF005CCBCF /* XCRemoteSwiftPackageReference "CloudStorage" */;
+			productName = CloudStorage;
+		};
+		09E393D22E31BC03005CCBCF /* CloudStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 09E393CF2E31BBEF005CCBCF /* XCRemoteSwiftPackageReference "CloudStorage" */;
+			productName = CloudStorage;
+		};
+		09E393D82E31BE93005CCBCF /* SoundCloud */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 09E393D72E31BE86005CCBCF /* XCRemoteSwiftPackageReference "SoundCloud-Swift" */;
+			productName = SoundCloud;
+		};
+		09E393DA2E31BE98005CCBCF /* SoundCloud */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 09E393D72E31BE86005CCBCF /* XCRemoteSwiftPackageReference "SoundCloud-Swift" */;
+			productName = SoundCloud;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

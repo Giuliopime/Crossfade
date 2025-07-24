@@ -1,6 +1,24 @@
 {
-  "originHash" : "c27170e0274abd9a8a18953f10eec26225f01ddc8aefb08403ef332aa6dd9eaa",
+  "originHash" : "1df2a125d0856951f847da649f4988a2827cef6a0bef749c64fd0c98428ca65c",
   "pins" : [
+    {
+      "identity" : "cloudstorage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nonstrict-hq/CloudStorage",
+      "state" : {
+        "revision" : "d94cb14e563c1a20edeba8a861395c60c2b9d064",
+        "version" : "0.7.0"
+      }
+    },
+    {
+      "identity" : "keychain-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/evgenyneu/keychain-swift",
+      "state" : {
+        "revision" : "d108a1fa6189e661f91560548ef48651ed8d93b9",
+        "version" : "20.0.0"
+      }
+    },
     {
       "identity" : "keychainaccess",
       "kind" : "remoteSourceControl",
@@ -26,6 +44,15 @@
       "state" : {
         "revision" : "b27140d0bd3a9a1e61f2324f644219be98eb3311",
         "version" : "2.2.0"
+      }
+    },
+    {
+      "identity" : "soundcloud-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/superturboryan/SoundCloud-Swift/",
+      "state" : {
+        "revision" : "d9709d51857fc3e4102b619bd7aa11ee65a7d31b",
+        "version" : "1.2.0"
       }
     },
     {

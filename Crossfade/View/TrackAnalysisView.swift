@@ -56,7 +56,7 @@ struct TrackAnalysisView: View {
                             ProgressView()
                         } else {
                             Button {
-                                // TODO: Open app with settings page
+                                openURL(URL(string: URLSchemeParser.settingsHomeTabURL)!)
                             } label: {
                                 Label("Configure platforms", systemImage: "gearshape")
                                     .labelStyle(.iconOnly)

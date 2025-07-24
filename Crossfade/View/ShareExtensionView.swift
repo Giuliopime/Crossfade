@@ -9,6 +9,7 @@ import SwiftUI
 import MusicKit
 import os
 import SwiftData
+import CloudStorage
 
 fileprivate let log = Logger(subsystem: "App", category: "ShareExtensionView")
 
@@ -32,6 +33,9 @@ struct ShareExtensionView: View {
     @Environment(SpotifyClient.self) private var spotifyClient
     @Environment(\.modelContext) private var context
     @Environment(\.openURL) private var openURL
+    
+    @CloudStorage(CloudKeyValueKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
+    @CloudStorage(CloudKeyValueKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
 
     let url: URL
     
@@ -42,6 +46,7 @@ struct ShareExtensionView: View {
     // MARK: - Data Loading
     
     private func load() async {
+        // TODO: Handle new behaviours
         viewState = .loading
         
         guard let host = url.host() else {
@@ -193,7 +198,7 @@ struct ShareExtensionView: View {
             Text("Please authorize access to \(platform.readableName) to continue.")
         } actions: {
             Button("Open App Settings") {
-                // TODO
+                openURL(URL(string: URLSchemeParser.settingsHomeTabURL)!)
             }
             .buttonStyle(.borderedProminent)
         }

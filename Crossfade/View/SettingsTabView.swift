@@ -8,6 +8,7 @@
 import SwiftUI
 import MusicKit
 import StoreKit
+import CloudStorage
 
 struct SettingsTabView: View {
     @Environment(AppleMusicClient.self) private var appleMusicClient
@@ -30,9 +31,8 @@ struct SettingsTabView: View {
         return count
     }
     
-    @State private var behaviourSettingsExpanded = false
-    @State private var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
-    @State private var spotifyBehaviour: PlatformBehaviour = .showAnalysis
+    @CloudStorage(CloudKeyValueKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
+    @CloudStorage(CloudKeyValueKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
     
     private func enableSpotify() async {
         let url = spotifyClient.requestAuthorization()

@@ -18,7 +18,7 @@ fileprivate let log = Logger(subsystem: "App", category: "SpotifyClient")
 @Observable
 class SpotifyClient {
     static let CLIENT_ID = "447e30822e024cc29515039fe7c133ea"
-    static let REDIRECT_URI = "crossfader://spotify-auth-callback"
+    static let REDIRECT_URI = "crossfade://spotify-auth-callback"
     
     private var codeVerifier = ""
     private var codeChallenge = ""

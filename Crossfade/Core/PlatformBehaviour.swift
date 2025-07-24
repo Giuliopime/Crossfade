@@ -10,7 +10,6 @@ import os
 
 fileprivate let log = Logger(subsystem: "App", category: "PlatformBehaviour")
 
-// TODO: Use key value icloud storage to share between devices
 enum PlatformBehaviour: Hashable, Identifiable {
     
     case showAnalysis

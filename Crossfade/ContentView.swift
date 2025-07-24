@@ -9,14 +9,18 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @Environment(NavigationManager.self) private var navigationManager
+    
     var body: some View {
         if #available(iOS 18.0, *) {
-            TabView {
-                Tab("History", systemImage: "clock") {
+            @Bindable var navigationManager = navigationManager
+            
+            TabView(selection: $navigationManager.selectedHomeTab) {
+                Tab("History", systemImage: "clock", value: HomeTab.history) {
                     HistoryTabView()
                 }
                 
-                Tab("Settings", systemImage: "gearshape") {
+                Tab("Settings", systemImage: "gearshape", value: HomeTab.settings) {
                     SettingsTabView()
                 }
             }
