@@ -52,33 +52,18 @@ class TrackAnalysis {
         )
     }
     
-    convenience init(_ track: MusicKit.Song, dateAnalyzed: Date = Date.now) {
+    convenience init(_ track: TrackInfo, dateAnalyzed: Date = Date.now) {
         self.init(
-            platform: .AppleMusic,
-            platformID: track.id.rawValue,
+            platform: track.platform,
+            platformID: track.id,
             title: track.title,
-            artworkURL: track.artwork?.url(width: 1024, height: 1024)?.absoluteString,
+            artworkURL: track.artworkURL,
             artistName: track.artistName,
             albumTitle: track.albumTitle,
             isrc: track.isrc,
-            appleMusicURL: track.url?.absoluteString,
-            spotifyURL: nil,
+            appleMusicURL: track.platform == .AppleMusic ? track.url : nil,
+            spotifyURL: track.platform == .Spotify ? track.url : nil,
             dateAnalyzed: dateAnalyzed
-        )
-    }
-    
-    convenience init(_ track: SpotifyWebAPI.Track, dateAnalyzed: Date = Date.now) {
-        self.init(
-            platform: .Spotify,
-            platformID: track.id ?? UUID().uuidString,
-            title: track.name,
-            artworkURL: track.album?.images?.first?.url.absoluteString,
-            artistName: track.artists?.first?.name ?? "unknown",
-            albumTitle: track.album?.name,
-            isrc: track.externalIds?["isrc"],
-            appleMusicURL: nil,
-            spotifyURL: track.externalURLs?["spotify"]?.absoluteString,
-            dateAnalyzed: Date.now
         )
     }
     

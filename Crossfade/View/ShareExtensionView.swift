@@ -7,7 +7,7 @@
 
 import SwiftUI
 import MusicKit
-import os
+import OSLog
 import SwiftData
 import CloudStorage
 

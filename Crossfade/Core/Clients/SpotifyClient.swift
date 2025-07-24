@@ -7,7 +7,7 @@
 
 import Foundation
 import Combine
-import os
+import OSLog
 import CryptoKit
 import SpotifyWebAPI
 import UIKit
@@ -16,7 +16,7 @@ import KeychainAccess
 fileprivate let log = Logger(subsystem: "App", category: "SpotifyClient")
 
 @Observable
-class SpotifyClient {
+class SpotifyClient: Client {
     static let CLIENT_ID = "447e30822e024cc29515039fe7c133ea"
     static let REDIRECT_URI = "crossfade://spotify-auth-callback"
     
@@ -53,7 +53,7 @@ class SpotifyClient {
      `authorizationManagerDidDeauthorize()`, which is called every time
      `SpotifyAPI.authorizationManager.deauthorize()` is called.
      */
-    var isAuthorized = false
+    private(set) var isAuthorized = false
     
     init() {
         // MARK: Important: Subscribe to `authorizationManagerDidChange` BEFORE
@@ -105,15 +105,17 @@ class SpotifyClient {
         }
     }
     
-    func requestAuthorization() -> URL {
+    func requestAuthorization() -> AuthorizationRequestResult {
         generateCodeChallenge()
         
-        return spotify.authorizationManager.makeAuthorizationURL(
+        let url = spotify.authorizationManager.makeAuthorizationURL(
             redirectURI: URL(string: Self.REDIRECT_URI)!,
             codeChallenge: codeChallenge,
             state: codeChallengeState,
             scopes: []
         )!
+        
+        return .shouldOpenURL(url)
     }
     
     func deauthorize() {
@@ -211,7 +213,7 @@ class SpotifyClient {
         codeChallengeState = String.randomURLSafe(length: 128)
     }
     
-    func fetchTrackInfo(url: URL) async throws -> Track {
+    func fetchTrackInfo(url: URL) async throws -> TrackInfo {
         // Extract track ID from Spotify URL
         guard let trackID = extractTrackID(from: url) else {
             throw ClientError.invalidURL
@@ -223,9 +225,9 @@ class SpotifyClient {
             let track = try await spotify.track("spotify:track:\(trackID)").awaitSingleValue()
             
             if let track = track {
-                return track
+                return TrackInfo(track)
             } else {
-                throw ClientError.songNotFound
+                throw ClientError.trackNotFound
             }
             
         } catch {
@@ -234,7 +236,7 @@ class SpotifyClient {
         }
     }
     
-    func fetchTrackInfo(title: String, artistName: String) async throws -> Track {
+    func fetchTrackInfo(title: String, artistName: String) async throws -> TrackInfo {
         let query = "\(title) - \(artistName)"
         
         do {
@@ -245,9 +247,9 @@ class SpotifyClient {
             ).awaitSingleValue()
             
             if let track = searchResult?.tracks?.items.first {
-                return track
+                return TrackInfo(track)
             } else {
-                throw ClientError.songNotFound
+                throw ClientError.trackNotFound
             }
             
         } catch {

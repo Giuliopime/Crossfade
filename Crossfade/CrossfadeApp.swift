@@ -35,11 +35,6 @@ struct CrossfadeApp: App {
                 .onOpenURL { url in
                     handleCustomURLScheme(url)
                 }
-                .onAppear {
-                    Task {
-                        await SoundCloudClient().test()
-                    }
-                }
         }
         
     }

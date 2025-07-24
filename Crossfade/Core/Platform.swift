@@ -10,6 +10,7 @@ import Foundation
 enum Platform: Identifiable, Codable, Equatable {
     case AppleMusic;
     case Spotify;
+    case SoundCloud;
     
     var id: String {
         switch self {
@@ -17,6 +18,8 @@ enum Platform: Identifiable, Codable, Equatable {
             return "apple_music"
         case .Spotify:
             return "spotify"
+        case .SoundCloud:
+            return "soundcloud"
         }
     }
     
@@ -26,6 +29,8 @@ enum Platform: Identifiable, Codable, Equatable {
             NSLocalizedString("Apple Music", comment: "Apple Music platform name")
         case .Spotify:
             NSLocalizedString("Spotify", comment: "Spotify platform name")
+        case .SoundCloud:
+            NSLocalizedString("SoundCloud", comment: "SoundCloud platform name")
         }
     }
 }
@@ -38,6 +43,8 @@ extension Platform: RawRepresentable {
             self = Platform.AppleMusic
         case Platform.Spotify.id:
             self = Platform.Spotify
+        case Platform.SoundCloud.id:
+            self = Platform.SoundCloud
         default:
             self = Platform.AppleMusic
         }

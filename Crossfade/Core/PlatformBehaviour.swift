@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import os
+import OSLog
 
 fileprivate let log = Logger(subsystem: "App", category: "PlatformBehaviour")
 
