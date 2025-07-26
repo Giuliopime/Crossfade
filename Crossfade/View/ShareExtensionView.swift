@@ -18,7 +18,7 @@ fileprivate enum ViewState {
     case analyzedSong
     case unsupportedPlatform
     case needsAuthorization(Platform)
-    case error(Error)
+    case error(Error? = nil)
     
     var isLoadingPlatformURLs: Bool {
         if case .analyzedSong = self {
@@ -31,11 +31,13 @@ fileprivate enum ViewState {
 struct ShareExtensionView: View {
     @Environment(AppleMusicClient.self) private var appleMusicClient
     @Environment(SpotifyClient.self) private var spotifyClient
+    @Environment(SoundCloudClient.self) private var soundCloudClient
     @Environment(\.modelContext) private var context
     @Environment(\.openURL) private var openURL
     
     @CloudStorage(CloudKeyValueKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
     @CloudStorage(CloudKeyValueKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
+    @CloudStorage(CloudKeyValueKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
 
     let url: URL
     
@@ -43,12 +45,14 @@ struct ShareExtensionView: View {
     @State private var trackAnalysis: TrackAnalysis?
     @State private var loadedPlatformAvailability = false
     
+    @State private var showingShareSheetForBehaviour = false
+    
     // MARK: - Data Loading
     
     private func load() async {
-        // TODO: Handle new behaviours
         viewState = .loading
         
+        // DETECT PLATFORM
         guard let host = url.host() else {
             viewState = .unsupportedPlatform
             return
@@ -60,6 +64,8 @@ struct ShareExtensionView: View {
             urlPlatform = .AppleMusic
         } else if (host.contains("spotify")) {
             urlPlatform = .Spotify
+        } else if (host.contains("soundcloud")) {
+            urlPlatform = .SoundCloud
         } else {
             viewState = .unsupportedPlatform
             return
@@ -67,42 +73,103 @@ struct ShareExtensionView: View {
         
         guard let urlPlatform = urlPlatform else { return }
         
-        do {
-            switch urlPlatform {
-            case .AppleMusic:
-                if (appleMusicClient.authStatus != .authorized) {
-                    viewState = .needsAuthorization(.AppleMusic)
-                    return
-                }
-                let track = try await appleMusicClient.fetchTrackInfo(url: url)
-                trackAnalysis = TrackAnalysis(track)
-            case .Spotify:
-                if (!spotifyClient.isAuthorized) {
-                    viewState = .needsAuthorization(.Spotify)
-                    return
-                }
-                let track = try await spotifyClient.fetchTrackInfo(url: url)
-                trackAnalysis = TrackAnalysis(track)
-            }
-            
-            guard let trackAnalysis = trackAnalysis else { return }
-            viewState = .analyzedSong
+        // DETERMINE CLIENT TO USE FOR FETCHING WITH URL
+        let clients: [Platform:Client] = [.AppleMusic : appleMusicClient, .Spotify : spotifyClient, .SoundCloud : soundCloudClient]
+        guard let clientToFetchWithURL = clients[urlPlatform] else {
+            log.error("Missing client for \(urlPlatform.readableName) platform")
+            viewState = .error()
+            return
+        }
         
-            switch urlPlatform {
-            case .AppleMusic:
-                let spotifyTrack = try await spotifyClient.fetchTrackInfo(title: trackAnalysis.title, artistName: trackAnalysis.artistName)
-                trackAnalysis.spotifyURL = spotifyTrack.spotifyURL?.absoluteString
-            case .Spotify:
-                let appleMusicTrack = try await appleMusicClient.fetchTrackInfo(title: trackAnalysis.title, artistName: trackAnalysis.artistName)
-                trackAnalysis.appleMusicURL = appleMusicTrack.url?.absoluteString
+        // CHECK FOR AUTHORIZATION
+        if !clientToFetchWithURL.isAuthorized {
+            viewState = .needsAuthorization(urlPlatform)
+            return
+        }
+        
+        do {
+            // FETCH TRACK INFO
+            let track = try await clientToFetchWithURL.fetchTrackInfo(url: url)
+            let trackAnalysis = TrackAnalysis(track)
+            viewState = .analyzedSong
+            
+            let behaviours: [Platform:PlatformBehaviour] = [.AppleMusic:appleMusicBehaviour, .Spotify:spotifyBehaviour, .SoundCloud:soundCloudBehaviour]
+            guard let behaviour = behaviours[urlPlatform] else {
+                log.error("Missing behaviour for \(urlPlatform.readableName) platform")
+                viewState = .error()
+                return
             }
             
-            loadedPlatformAvailability = true
+            let singlePlatformToFetch: Platform?
             
-            // store in the database
-            context.insert(trackAnalysis)
+            /// Returns nil if some kind of issue occurs, it automatically sets the correct viewState for it so you just need to interrupt execution
+            func fetchTrackURLAndUpdateDatabase(for platform: Platform) async throws -> URL? {
+                guard let clientToFetchWithTrackInfo = clients[platform] else {
+                    log.error("Missing client for \(urlPlatform.readableName) platform")
+                    viewState = .error()
+                    return nil
+                }
+                
+                if !clientToFetchWithTrackInfo.isAuthorized {
+                    viewState = .needsAuthorization(platform)
+                    return nil
+                }
+                
+                let url = try await clientToFetchWithTrackInfo.fetchTrackInfo(title: trackAnalysis.title, artistName: trackAnalysis.artistName).url
+                
+                // UPDATE TRACK ANALYSIS
+                switch platform {
+                case .AppleMusic:
+                    trackAnalysis.appleMusicURL = url?.absoluteString
+                case .Spotify:
+                    trackAnalysis.spotifyURL = url?.absoluteString
+                case .SoundCloud:
+                    trackAnalysis.soundCloudURL = url?.absoluteString
+                }
+                
+                // UPDATE DB
+                context.insert(trackAnalysis)
+                
+                return url
+            }
+            
+            func setTrackAnalysisURL(for platform: Platform, with url: String?) {
+                switch platform {
+                case .AppleMusic:
+                    trackAnalysis.appleMusicURL = url
+                case .Spotify:
+                    trackAnalysis.spotifyURL = url
+                case .SoundCloud:
+                    trackAnalysis.soundCloudURL = url
+                }
+            }
+            
+            switch behaviour {
+            case .showAnalysis:
+                // FETCH OTHER PLATFORMS URL
+                let clientsToFetchWithTrackInfo = clients.filter { $0.key != urlPlatform && $0.value.isAuthorized == true }
+                for (platform, client) in clientsToFetchWithTrackInfo {
+                    let track = try await client.fetchTrackInfo(title: trackAnalysis.title, artistName: trackAnalysis.artistName)
+                    setTrackAnalysisURL(for: platform, with: track.urlString)
+                }
+                
+                loadedPlatformAvailability = true
+                context.insert(trackAnalysis)
+            case .copy(let platform):
+                guard let url = try await fetchTrackURLAndUpdateDatabase(for: platform) else { break }
+                UIPasteboard.general.url = url
+                // TODO: Update UI and update DB
+            case .share(let platform):
+                guard let url = try await fetchTrackURLAndUpdateDatabase(for: platform) else { break }
+                // TODO: Show share sheet with trackInfo.url
+                // TODO: Update UI
+            case .open(let platform):
+                guard let url = try await fetchTrackURLAndUpdateDatabase(for: platform) else { break }
+                openURL(url)
+                // TODO: Update UI
+            }
         } catch {
-            print("Failed \(error)")
+            log.error("\(error)")
             viewState = .error(error)
         }
     }
@@ -165,7 +232,7 @@ struct ShareExtensionView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    private func errorView(_ error: Error) -> some View {
+    private func errorView(_ error: Error?) -> some View {
         ContentUnavailableView {
             Label("Something went wrong", systemImage: "exclamationmark.triangle")
         } description: {
@@ -173,7 +240,7 @@ struct ShareExtensionView: View {
                case .unknown(let underlyingError) = clientError {
                 Text("Unknown ClientError: \(underlyingError)")
             } else {
-                Text(error.localizedDescription)
+                Text(error?.localizedDescription ?? "Unknown error")
             }
         } actions: {
             Button("Try Again") {

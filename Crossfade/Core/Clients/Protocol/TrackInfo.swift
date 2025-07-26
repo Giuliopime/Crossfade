@@ -14,7 +14,7 @@ struct TrackInfo {
     var platform: Platform
     /// The id the platform uses for this song, it's NOT composed with the platform name like the TrackAnalysis model
     var id: String
-    var url: String?
+    var url: URL?
     
     var title: String
     var artistName: String
@@ -22,10 +22,14 @@ struct TrackInfo {
     var albumTitle: String?
     var isrc: String?
     
+    var urlString: String? {
+        return url?.absoluteString
+    }
+    
     nonisolated init(
         platform: Platform,
         id: String,
-        url: String?,
+        url: URL?,
         title: String,
         artistName: String,
         artworkURL: String? = nil,
@@ -46,7 +50,7 @@ struct TrackInfo {
         self.init(
             platform: .AppleMusic,
             id: track.id.rawValue,
-            url: track.url?.absoluteString,
+            url: track.url,
             title: track.title,
             artistName: track.artistName,
             artworkURL: track.artwork?.url(width: 1024, height: 1024)?.absoluteString,
@@ -59,7 +63,7 @@ struct TrackInfo {
         self.init(
             platform: .Spotify,
             id: track.id ?? UUID().uuidString,
-            url: track.externalURLs?["spotify"]?.absoluteString,
+            url: track.externalURLs?["spotify"],
             title: track.name,
             artistName: track.artists?.first?.name ?? "unknown",
             artworkURL: track.album?.images?.first?.url.absoluteString,
@@ -72,7 +76,7 @@ struct TrackInfo {
         self.init(
             platform: .SoundCloud,
             id: track.urn,
-            url: track.permalinkUrl,
+            url: track.permalinkUrl.flatMap { URL(string: $0) },
             title: track.title,
             artistName: track.user.username,
             artworkURL: track.artworkUrl,

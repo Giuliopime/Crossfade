@@ -13,6 +13,7 @@ struct CrossfadeApp: App {
     @State private var navigationManager = NavigationManager()
     @State private var appleMusicClient = AppleMusicClient()
     @State private var spotifyClient = SpotifyClient()
+    @State private var soundCloudClient = SoundCloudClient()
     
     private func handleCustomURLScheme(_ url: URL) {
         if url.absoluteString.contains(SpotifyClient.REDIRECT_URI) {
@@ -31,6 +32,7 @@ struct CrossfadeApp: App {
                 .environment(navigationManager)
                 .environment(appleMusicClient)
                 .environment(spotifyClient)
+                .environment(soundCloudClient)
                 .modelContainer(for: [TrackAnalysis.self])
                 .onOpenURL { url in
                     handleCustomURLScheme(url)

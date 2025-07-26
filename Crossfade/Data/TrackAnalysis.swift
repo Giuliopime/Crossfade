@@ -23,6 +23,7 @@ class TrackAnalysis {
     
     var appleMusicURL: String?
     var spotifyURL: String?
+    var soundCloudURL: String?
     
     var dateAnalyzed: Date = Date.now
     

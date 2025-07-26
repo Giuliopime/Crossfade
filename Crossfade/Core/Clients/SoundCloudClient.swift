@@ -96,6 +96,7 @@ extension Data {
 }
 
 // MARK: - SoundCloud Client Implementation
+@Observable
 class SoundCloudClient: Client {
     private let config: SoundCloudConfig
     private let tokenManager = TokenManager()

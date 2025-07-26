@@ -54,6 +54,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Assets.xcassets,
+				Core/AnalysisHelper.swift,
 				Core/AppStorageKeys.swift,
 				Core/Clients/AppleMusicClient.swift,
 				Core/Clients/Protocol/Client.swift,
@@ -73,6 +74,7 @@
 				View/ShareExtensionView.swift,
 				View/TrackAnalysisView.swift,
 				View/Util/ColorExtension.swift,
+				View/Util/ShareSheet.swift,
 			);
 			target = 09620C4E2DFE01D30073AA3B /* CrossfadeShareExtension */;
 		};
