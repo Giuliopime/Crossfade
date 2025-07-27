@@ -53,7 +53,7 @@ class TokenManager {
                 return nil
             }
             let tokenInfo = try JSONDecoder().decode(TokenInfo.self, from: data)
-            log.info("Token loaded from keychain successfully")
+            log.debug("Token loaded from keychain successfully")
             return tokenInfo
         } catch {
             log.error("Failed to load token from keychain: \(error)")
@@ -98,6 +98,10 @@ extension Data {
 // MARK: - SoundCloud Client Implementation
 @Observable
 class SoundCloudClient: Client {
+    let deauthorizableInAppSettings: Bool = false
+    
+    static let REDIRECT_URI = "crossfade://soundcloud-auth-callback"
+
     private let config: SoundCloudConfig
     private let tokenManager = TokenManager()
     private var tokenInfo: TokenInfo?
@@ -107,7 +111,7 @@ class SoundCloudClient: Client {
     init() {
         self.config = SoundCloudConfig(
             clientId: "F8rqzDiHHb0wW2hif0MvkZwDzlPn8Ava",
-            redirectUri: "crossfade://soundcloud-auth-callback"
+            redirectUri: Self.REDIRECT_URI
         )
         
         // Load existing token from keychain on initialization
@@ -355,7 +359,7 @@ class SoundCloudClient: Client {
     
     // MARK: - Authenticated Request Helper
     
-    func makeAuthenticatedRequest(url: URL) async throws -> Data {
+    private func makeAuthenticatedRequest(url: URL) async throws -> Data {
         // Refresh token if needed
         if let tokenInfo = tokenInfo, tokenInfo.isExpired {
             let refreshed = await refreshAccessToken()
@@ -415,7 +419,8 @@ class SoundCloudClient: Client {
         }
         
         components.queryItems = [
-            URLQueryItem(name: "url", value: url.absoluteString)
+            URLQueryItem(name: "url", value: url.absoluteString),
+            URLQueryItem(name: "linked_partitioning", value: "true")
         ]
         
         guard let resolveURL = components.url else {
@@ -439,8 +444,8 @@ class SoundCloudClient: Client {
         
         components.queryItems = [
             URLQueryItem(name: "q", value: searchQuery),
-            URLQueryItem(name: "limit", value: "1"), // Get multiple results to find best match
-            URLQueryItem(name: "access", value: "playable") // Only get playable tracks
+            URLQueryItem(name: "limit", value: "1"),
+            URLQueryItem(name: "linked_partitioning", value: "true")
         ]
         
         guard let searchURL = components.url else {

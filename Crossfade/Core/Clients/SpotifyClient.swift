@@ -17,6 +17,8 @@ fileprivate let log = Logger(subsystem: "App", category: "SpotifyClient")
 
 @Observable
 class SpotifyClient: Client {
+    let deauthorizableInAppSettings: Bool = false
+    
     static let CLIENT_ID = "447e30822e024cc29515039fe7c133ea"
     static let REDIRECT_URI = "crossfade://spotify-auth-callback"
     

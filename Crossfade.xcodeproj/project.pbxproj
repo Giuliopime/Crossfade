@@ -54,7 +54,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Assets.xcassets,
-				Core/AnalysisHelper.swift,
 				Core/AppStorageKeys.swift,
 				Core/Clients/AppleMusicClient.swift,
 				Core/Clients/Protocol/Client.swift,
@@ -65,6 +64,7 @@
 				Core/CloudKeyValueKeys.swift,
 				Core/Extensions/PublisherExtension.swift,
 				Core/Extensions/SpotifyTrackExtension.swift,
+				Core/Extensions/URLExtension.swift,
 				Core/Identifiers.swift,
 				Core/Platform.swift,
 				Core/PlatformBehaviour.swift,

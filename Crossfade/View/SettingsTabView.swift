@@ -9,10 +9,14 @@ import SwiftUI
 import MusicKit
 import StoreKit
 import CloudStorage
+import OSLog
+
+fileprivate let log = Logger(subsystem: "App", category: "SettingsTabView")
 
 struct SettingsTabView: View {
     @Environment(AppleMusicClient.self) private var appleMusicClient
     @Environment(SpotifyClient.self) private var spotifyClient
+    @Environment(SoundCloudClient.self) private var soundCloudClient
     @Environment(\.openURL) private var openURL
     @Environment(\.requestReview) var requestReview
     
@@ -27,27 +31,47 @@ struct SettingsTabView: View {
         if spotifyClient.isAuthorized {
             count += 1
         }
+        if soundCloudClient.isAuthorized {
+            count += 1
+        }
         
         return count
     }
     
-    @CloudStorage(CloudKeyValueKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
-    @CloudStorage(CloudKeyValueKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(CloudKeyValueKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(CloudKeyValueKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(CloudKeyValueKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
     
-    private func enableSpotify() async {
-        let url = spotifyClient.requestAuthorization()
-        openURL(url)
-    }
-    
-    private func disableSpotify() async {
-        spotifyClient.deauthorize()
-    }
-    
-    private func enableAppleMusic() async {
-        let authStatus = await appleMusicClient.requestAuthorization()
+    private func enablePlatform(_ platform: Platform) async {
+        let clients: [Platform:Client] = [.AppleMusic:appleMusicClient, .Spotify:spotifyClient, .SoundCloud:soundCloudClient]
+        guard let client = clients[platform] else {
+            log.error("Missing client for platform: \(platform.readableName)")
+            return
+        }
         
-        if authStatus != .authorized {
-            showAppleMusicFailedAuthAlert = true
+        let result = await client.requestAuthorization()
+        
+        switch result {
+        case .completed(let success):
+            if !success && platform == .AppleMusic {
+                showAppleMusicFailedAuthAlert = true
+            }
+        case .shouldOpenURL(let url):
+            openURL(url)
+        }
+    }
+    
+    private func disablePlatform(_ platform: Platform) async {
+        let clients: [Platform:Client] = [.AppleMusic:appleMusicClient, .Spotify:spotifyClient, .SoundCloud:soundCloudClient]
+        guard let client = clients[platform] else {
+            log.error("Missing client for platform: \(platform.readableName)")
+            return
+        }
+        
+        if client.deauthorizableInAppSettings {
+            await openAppSettings()
+        } else {
+            client.deauthorize()
         }
     }
     
@@ -71,7 +95,7 @@ struct SettingsTabView: View {
                         } else if appleMusicClient.authStatus == .notDetermined {
                             Button("Try again") {
                                 Task {
-                                    await enableAppleMusic()
+                                    await enablePlatform(.AppleMusic)
                                 }
                             }
                         }
@@ -119,11 +143,11 @@ struct SettingsTabView: View {
                 } set: { newValue in
                     if newValue {
                         Task {
-                            await enableAppleMusic()
+                            await enablePlatform(.AppleMusic)
                         }
                     } else {
                         Task {
-                            await openAppSettings()
+                            await disablePlatform(.AppleMusic)
                         }
                     }
                 })
@@ -140,11 +164,32 @@ struct SettingsTabView: View {
                 } set: { newValue in
                     if newValue {
                         Task {
-                            await enableSpotify()
+                            await enablePlatform(.Spotify)
                         }
                     } else {
                         Task {
-                            await disableSpotify()
+                            await disablePlatform(.Spotify)
+                        }
+                    }
+                })
+            }
+            
+            HStack {
+                Image("logo_soundcloud")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 28)
+                
+                Toggle("SoundCloud", isOn: Binding {
+                    soundCloudClient.isAuthorized
+                } set: { newValue in
+                    if newValue {
+                        Task {
+                            await enablePlatform(.SoundCloud)
+                        }
+                    } else {
+                        Task {
+                            await disablePlatform(.SoundCloud)
                         }
                     }
                 })
@@ -154,6 +199,7 @@ struct SettingsTabView: View {
         }
     }
     
+    // TODO: Generalize clients
     var behaviourSection: some View {
         NavigationLink {
             List {

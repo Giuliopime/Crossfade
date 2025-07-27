@@ -16,11 +16,13 @@ fileprivate let log = Logger(subsystem: "App", category: "ShareExtensionView")
 fileprivate enum ViewState {
     case loading
     case analyzedSong
+    case loadingBehaviour(PlatformBehaviour)
+    case completedBehaviour(PlatformBehaviour)
     case unsupportedPlatform
     case needsAuthorization(Platform)
     case error(Error? = nil)
     
-    var isLoadingPlatformURLs: Bool {
+    var isLoadingBehaviour: Bool {
         if case .analyzedSong = self {
             return true
         }
@@ -35,9 +37,9 @@ struct ShareExtensionView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.openURL) private var openURL
     
-    @CloudStorage(CloudKeyValueKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
-    @CloudStorage(CloudKeyValueKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
-    @CloudStorage(CloudKeyValueKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(CloudKeyValueKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(CloudKeyValueKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(CloudKeyValueKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
 
     let url: URL
     
@@ -45,10 +47,9 @@ struct ShareExtensionView: View {
     @State private var trackAnalysis: TrackAnalysis?
     @State private var loadedPlatformAvailability = false
     
-    @State private var showingShareSheetForBehaviour = false
+    @State private var urlForShareBehaviour: URL?
     
     // MARK: - Data Loading
-    
     private func load() async {
         viewState = .loading
         
@@ -90,8 +91,10 @@ struct ShareExtensionView: View {
         do {
             // FETCH TRACK INFO
             let track = try await clientToFetchWithURL.fetchTrackInfo(url: url)
-            let trackAnalysis = TrackAnalysis(track)
-            viewState = .analyzedSong
+            
+            trackAnalysis = TrackAnalysis(track)
+            guard let trackAnalysis = trackAnalysis else { return }
+            
             
             let behaviours: [Platform:PlatformBehaviour] = [.AppleMusic:appleMusicBehaviour, .Spotify:spotifyBehaviour, .SoundCloud:soundCloudBehaviour]
             guard let behaviour = behaviours[urlPlatform] else {
@@ -100,7 +103,11 @@ struct ShareExtensionView: View {
                 return
             }
             
-            let singlePlatformToFetch: Platform?
+            if behaviour == .showAnalysis {
+                viewState = .analyzedSong
+            } else {
+                viewState = .loadingBehaviour(behaviour)
+            }
             
             /// Returns nil if some kind of issue occurs, it automatically sets the correct viewState for it so you just need to interrupt execution
             func fetchTrackURLAndUpdateDatabase(for platform: Platform) async throws -> URL? {
@@ -153,20 +160,20 @@ struct ShareExtensionView: View {
                     setTrackAnalysisURL(for: platform, with: track.urlString)
                 }
                 
-                loadedPlatformAvailability = true
                 context.insert(trackAnalysis)
+                loadedPlatformAvailability = true
             case .copy(let platform):
                 guard let url = try await fetchTrackURLAndUpdateDatabase(for: platform) else { break }
                 UIPasteboard.general.url = url
-                // TODO: Update UI and update DB
+                viewState = .completedBehaviour(behaviour)
             case .share(let platform):
                 guard let url = try await fetchTrackURLAndUpdateDatabase(for: platform) else { break }
-                // TODO: Show share sheet with trackInfo.url
-                // TODO: Update UI
+                urlForShareBehaviour = url
+                viewState = .completedBehaviour(behaviour)
             case .open(let platform):
                 guard let url = try await fetchTrackURLAndUpdateDatabase(for: platform) else { break }
                 openURL(url)
-                // TODO: Update UI
+                viewState = .completedBehaviour(behaviour)
             }
         } catch {
             log.error("\(error)")
@@ -187,6 +194,9 @@ struct ShareExtensionView: View {
                             close()
                         }
                     }
+                }
+                .sheet(item: $urlForShareBehaviour) { url in
+                    ShareSheet(items: [url])
                 }
         }
         .task {
@@ -213,6 +223,10 @@ struct ShareExtensionView: View {
                     .foregroundColor(.red)
 #endif
             }
+        case .loadingBehaviour(let behaviour):
+            loadingBehaviourView(behaviour)
+        case .completedBehaviour(let behaviour):
+            completedBehaviourView(behaviour)
         case .error(let error):
             errorView(error)
         case .unsupportedPlatform:
@@ -230,6 +244,71 @@ struct ShareExtensionView: View {
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func loadingBehaviourView(_ behaviour: PlatformBehaviour) -> some View {
+        let loadingText: String
+        
+        switch behaviour {
+        case .copy(let platform):
+            loadingText = "Copying \(platform.readableName) url..."
+            
+        case .share(let platform):
+            loadingText = "Preparing \(platform.readableName) content to share..."
+            
+        case .open(let platform):
+            loadingText = "Opening \(platform.readableName)..."
+            
+        case .showAnalysis:
+            loadingText = "Loading song analysis..."
+        }
+        
+        return VStack(spacing: 20) {
+            ProgressView()
+                .scaleEffect(1.2)
+            Text(loadingText)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func completedBehaviourView(_ behaviour: PlatformBehaviour) -> some View {
+        let title: String
+        let image: String
+        let description: String
+        
+        switch behaviour {
+        case .copy(let platform):
+            title = "Copied to Clipboard"
+            image = "document.on.clipboard"
+            description = "\(platform.readableName) link has been successfully copied to your clipboard and is ready to paste. You can change this behaviour in the app settings."
+            
+        case .share(let platform):
+            title = "Content Shared"
+            image = "square.and.arrow.up"
+            description = "Opened share sheet for \(platform.readableName) link. You can change this behaviour in the app settings."
+            
+        case .open(let platform):
+            title = "App Opened"
+            image = "arrow.up.right.square"
+            description = "Opened \(platform.readableName) link. You can change this behaviour in the app settings."
+            
+        case .showAnalysis:
+            title = "Unexpected Error"
+            image = "exclamationmark.triangle"
+            description = "An unexpected error occurred. The showAnalysis behaviour should not trigger this view. Please report this to a developer."
+        }
+        
+        return ContentUnavailableView {
+            Label(title, systemImage: image)
+        } description: {
+            Text(description)
+        } actions: {
+            Button("Open Settings") {
+                openURL(URL(string: URLSchemeParser.settingsHomeTabURL)!)
+            }
+            .buttonStyle(.borderedProminent)
+        }
     }
     
     private func errorView(_ error: Error?) -> some View {
@@ -272,7 +351,7 @@ struct ShareExtensionView: View {
     }
     
     // MARK: - Helper Methods
-    func close() {
+    private func close() {
         NotificationCenter.default.post(name: NSNotification.Name("close.share.extension"), object: nil)
     }
 }

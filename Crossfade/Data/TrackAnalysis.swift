@@ -27,7 +27,7 @@ class TrackAnalysis {
     
     var dateAnalyzed: Date = Date.now
     
-    init(id: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil, dateAnalyzed: Date = Date.now) {
+    init(id: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil, soundCloudURL: String? = nil, dateAnalyzed: Date = Date.now) {
         self.id = id
         self.title = title
         self.artworkURL = artworkURL
@@ -36,10 +36,11 @@ class TrackAnalysis {
         self.isrc = isrc
         self.appleMusicURL = appleMusicURL
         self.spotifyURL = spotifyURL
+        self.soundCloudURL = soundCloudURL
         self.dateAnalyzed = dateAnalyzed
     }
     
-    convenience init(platform: Platform, platformID: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil, dateAnalyzed: Date = Date.now) {
+    convenience init(platform: Platform, platformID: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil, soundCloudURL: String? = nil, dateAnalyzed: Date = Date.now) {
         self.init(
             id: "\(platform.id):\(platformID)",
             title: title,
@@ -49,6 +50,7 @@ class TrackAnalysis {
             isrc: isrc,
             appleMusicURL: appleMusicURL,
             spotifyURL: spotifyURL,
+            soundCloudURL: soundCloudURL,
             dateAnalyzed: dateAnalyzed
         )
     }
@@ -62,8 +64,9 @@ class TrackAnalysis {
             artistName: track.artistName,
             albumTitle: track.albumTitle,
             isrc: track.isrc,
-            appleMusicURL: track.platform == .AppleMusic ? track.url : nil,
-            spotifyURL: track.platform == .Spotify ? track.url : nil,
+            appleMusicURL: track.platform == .AppleMusic ? track.urlString : nil,
+            spotifyURL: track.platform == .Spotify ? track.urlString : nil,
+            soundCloudURL: track.platform == .SoundCloud ? track.urlString : nil,
             dateAnalyzed: dateAnalyzed
         )
     }
@@ -91,6 +94,10 @@ class TrackAnalysis {
         case .Spotify:
             if let spotifyURL = spotifyURL {
                 return URL(string: spotifyURL)
+            }
+        case .SoundCloud:
+            if let soundCloudURL = soundCloudURL {
+                return URL(string: soundCloudURL)
             }
         }
         

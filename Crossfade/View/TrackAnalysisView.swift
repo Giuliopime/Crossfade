@@ -43,9 +43,13 @@ struct TrackAnalysisView: View {
                         platformAvailabilityRow(url: spotifyURL, platform: .Spotify)
                     }
                     
+                    if let soundCloudURL = trackAnalysis.url(for: .SoundCloud) {
+                        platformAvailabilityRow(url: soundCloudURL, platform: .SoundCloud)
+                    }
+                    
                     if loadedPlatformAvailability && trackAnalysis.platformsCount < 2 {
                         Button {
-                            
+                            openURL(URL(string: URLSchemeParser.settingsHomeTabURL)!)
                         } label: {
                             Label("Configure platforms", systemImage: "plus")
                         }
@@ -112,6 +116,11 @@ struct TrackAnalysisView: View {
                         .frame(height: 28)
                 case .Spotify:
                     Image("logo_spotify")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 28)
+                case .SoundCloud:
+                    Image("logo_soundcloud")
                         .resizable()
                         .scaledToFit()
                         .frame(height: 28)

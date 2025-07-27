@@ -44,6 +44,7 @@ class ShareViewController: UIViewController {
                 rootView: ShareExtensionView(url: url)
                     .environment(AppleMusicClient())
                     .environment(SpotifyClient())
+                    .environment(SoundCloudClient())
                     .modelContainer(for: [TrackAnalysis.self])
             )
             self.addChild(contentView)

@@ -10,6 +10,7 @@ import Foundation
 protocol Client {
     var isAuthorized: Bool { get }
     func requestAuthorization() async -> AuthorizationRequestResult
+    var deauthorizableInAppSettings: Bool { get }
     func deauthorize()
     
     func fetchTrackInfo(url: URL) async throws -> TrackInfo
