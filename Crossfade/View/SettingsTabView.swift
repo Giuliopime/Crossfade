@@ -17,6 +17,7 @@ struct SettingsTabView: View {
     @Environment(AppleMusicClient.self) private var appleMusicClient
     @Environment(SpotifyClient.self) private var spotifyClient
     @Environment(SoundCloudClient.self) private var soundCloudClient
+    @Environment(YouTubeClient.self) private var youTubeClient
     @Environment(\.openURL) private var openURL
     @Environment(\.requestReview) var requestReview
     
@@ -34,17 +35,21 @@ struct SettingsTabView: View {
         if soundCloudClient.isAuthorized {
             count += 1
         }
+        if youTubeClient.isAuthorized {
+            count += 1
+        }
         
         return count
     }
     
     private var clients: [any Client] {
-        return [appleMusicClient, spotifyClient, soundCloudClient]
+        return [appleMusicClient, spotifyClient, soundCloudClient, youTubeClient]
     }
     
-    @AppStorage(CloudKeyValueKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
-    @AppStorage(CloudKeyValueKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
-    @AppStorage(CloudKeyValueKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(AppStorageKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(AppStorageKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(AppStorageKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(AppStorageKeys.youTubeBehaviour) var youtubeBehaviour: PlatformBehaviour = .showAnalysis
     
     private func enablePlatform(client: any Client) async {
         let result = await client.requestAuthorization()
@@ -128,7 +133,7 @@ struct SettingsTabView: View {
                     Image(client.platform.imageName)
                         .resizable()
                         .scaledToFit()
-                        .frame(maxHeight: 28)
+                        .frame(maxWidth: 28, maxHeight: 28)
                     
                     Toggle(client.platform.readableName, isOn: Binding {
                         client.isAuthorized
@@ -183,6 +188,8 @@ struct SettingsTabView: View {
             platformBehaviour = $spotifyBehaviour
         case .SoundCloud:
             platformBehaviour = $soundCloudBehaviour
+        case .YouTube:
+            platformBehaviour = $youtubeBehaviour
         }
         
         let otherClients = clients.filter { $0.id != client.id }

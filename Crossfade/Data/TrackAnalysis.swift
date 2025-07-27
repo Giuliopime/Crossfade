@@ -24,10 +24,11 @@ class TrackAnalysis {
     var appleMusicURL: String?
     var spotifyURL: String?
     var soundCloudURL: String?
+    var youTubeURL: String?
     
     var dateAnalyzed: Date = Date.now
     
-    init(id: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil, soundCloudURL: String? = nil, dateAnalyzed: Date = Date.now) {
+    init(id: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil, soundCloudURL: String? = nil, youTubeURL: String? = nil, dateAnalyzed: Date = Date.now) {
         self.id = id
         self.title = title
         self.artworkURL = artworkURL
@@ -37,10 +38,11 @@ class TrackAnalysis {
         self.appleMusicURL = appleMusicURL
         self.spotifyURL = spotifyURL
         self.soundCloudURL = soundCloudURL
+        self.youTubeURL = youTubeURL
         self.dateAnalyzed = dateAnalyzed
     }
     
-    convenience init(platform: Platform, platformID: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil, soundCloudURL: String? = nil, dateAnalyzed: Date = Date.now) {
+    convenience init(platform: Platform, platformID: String, title: String, artworkURL: String? = nil, artistName: String, albumTitle: String? = nil, isrc: String? = nil, appleMusicURL: String? = nil, spotifyURL: String? = nil, soundCloudURL: String? = nil, youTubeURL: String? = nil, dateAnalyzed: Date = Date.now) {
         self.init(
             id: "\(platform.id):\(platformID)",
             title: title,
@@ -51,6 +53,7 @@ class TrackAnalysis {
             appleMusicURL: appleMusicURL,
             spotifyURL: spotifyURL,
             soundCloudURL: soundCloudURL,
+            youTubeURL: youTubeURL,
             dateAnalyzed: dateAnalyzed
         )
     }
@@ -67,6 +70,7 @@ class TrackAnalysis {
             appleMusicURL: track.platform == .AppleMusic ? track.urlString : nil,
             spotifyURL: track.platform == .Spotify ? track.urlString : nil,
             soundCloudURL: track.platform == .SoundCloud ? track.urlString : nil,
+            youTubeURL: track.platform == .YouTube ? track.urlString : nil,
             dateAnalyzed: dateAnalyzed
         )
     }
@@ -79,6 +83,14 @@ class TrackAnalysis {
         }
         
         if spotifyURL != nil {
+            count += 1
+        }
+        
+        if soundCloudURL != nil {
+            count += 1
+        }
+        
+        if youTubeURL != nil {
             count += 1
         }
         
@@ -98,6 +110,10 @@ class TrackAnalysis {
         case .SoundCloud:
             if let soundCloudURL = soundCloudURL {
                 return URL(string: soundCloudURL)
+            }
+        case .YouTube:
+            if let youTubeURL = youTubeURL {
+                return URL(string: youTubeURL)
             }
         }
         

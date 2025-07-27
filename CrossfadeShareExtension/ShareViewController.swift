@@ -45,6 +45,7 @@ class ShareViewController: UIViewController {
                     .environment(AppleMusicClient())
                     .environment(SpotifyClient())
                     .environment(SoundCloudClient())
+                    .environment(YouTubeClient())
                     .modelContainer(for: [TrackAnalysis.self])
                     .defaultAppStorage(UserDefaults(suiteName: Identifiers.app_group)!)
             )

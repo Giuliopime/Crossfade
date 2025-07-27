@@ -14,6 +14,7 @@ struct CrossfadeApp: App {
     @State private var appleMusicClient = AppleMusicClient()
     @State private var spotifyClient = SpotifyClient()
     @State private var soundCloudClient = SoundCloudClient()
+    @State private var youTubeClient = YouTubeClient()
     
     private func handleCustomURLScheme(_ url: URL) async {
         if url.absoluteString.contains(SpotifyClient.REDIRECT_URI) {
@@ -23,6 +24,11 @@ struct CrossfadeApp: App {
         
         if url.absoluteString.contains(SoundCloudClient.REDIRECT_URI) {
             let _ = await soundCloudClient.handleAuthorizationCallback(url: url)
+            return
+        }
+        
+        if url.absoluteString.contains(YouTubeClient.REDIRECT_URI) {
+            let _ = await youTubeClient.handleAuthorizationCallback(url: url)
             return
         }
         
@@ -38,6 +44,7 @@ struct CrossfadeApp: App {
                 .environment(appleMusicClient)
                 .environment(spotifyClient)
                 .environment(soundCloudClient)
+                .environment(youTubeClient)
                 .modelContainer(for: [TrackAnalysis.self])
                 .defaultAppStorage(UserDefaults(suiteName: Identifiers.app_group)!)
                 .onOpenURL { url in

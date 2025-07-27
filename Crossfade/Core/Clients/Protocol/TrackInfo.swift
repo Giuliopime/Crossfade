@@ -84,4 +84,24 @@ struct TrackInfo {
             isrc: track.isrc
         )
     }
+    
+    nonisolated init(_ track: YouTubeVideo) {
+        // Extract the best available thumbnail
+        let thumbnails = track.snippet.thumbnails
+        let artworkURL = thumbnails.maxres?.url ??
+                        thumbnails.high?.url ??
+                        thumbnails.medium?.url ??
+                        thumbnails.default?.url
+        
+        self.init(
+            platform: .YouTube,
+            id: track.id,
+            url: URL(string: "https://www.youtube.com/watch?v=\(track.id)"), // TODO
+            title: track.snippet.title,
+            artistName: track.snippet.channelTitle,
+            artworkURL: artworkURL,
+            albumTitle: nil,
+            isrc: nil
+        )
+    }
 }

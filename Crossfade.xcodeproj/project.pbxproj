@@ -61,7 +61,7 @@
 				Core/Clients/Protocol/TrackInfo.swift,
 				Core/Clients/SoundCloudClient.swift,
 				Core/Clients/SpotifyClient.swift,
-				Core/CloudKeyValueKeys.swift,
+				Core/Clients/YouTubeClient.swift,
 				Core/Extensions/PublisherExtension.swift,
 				Core/Extensions/SpotifyTrackExtension.swift,
 				Core/Extensions/URLExtension.swift,

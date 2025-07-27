@@ -34,12 +34,14 @@ struct ShareExtensionView: View {
     @Environment(AppleMusicClient.self) private var appleMusicClient
     @Environment(SpotifyClient.self) private var spotifyClient
     @Environment(SoundCloudClient.self) private var soundCloudClient
+    @Environment(YouTubeClient.self) private var youTubeClient
     @Environment(\.modelContext) private var context
     @Environment(\.openURL) private var openURL
     
-    @AppStorage(CloudKeyValueKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
-    @AppStorage(CloudKeyValueKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
-    @AppStorage(CloudKeyValueKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(AppStorageKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(AppStorageKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(AppStorageKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
+    @AppStorage(AppStorageKeys.youTubeBehaviour) var youtubeBehaviour: PlatformBehaviour = .showAnalysis
 
     let url: URL
     
@@ -75,7 +77,7 @@ struct ShareExtensionView: View {
         guard let urlPlatform = urlPlatform else { return }
         
         // DETERMINE CLIENT TO USE FOR FETCHING WITH URL
-        let clients: [any Client] = [appleMusicClient, spotifyClient, soundCloudClient]
+        let clients: [any Client] = [appleMusicClient, spotifyClient, soundCloudClient, youTubeClient]
         guard let clientToFetchWithURL = clients.first(where: { $0.platform == urlPlatform }) else {
             log.error("Missing client for \(urlPlatform.readableName) platform")
             viewState = .error()
@@ -96,7 +98,7 @@ struct ShareExtensionView: View {
             guard let trackAnalysis = trackAnalysis else { return }
             
             
-            let behaviours: [Platform:PlatformBehaviour] = [.AppleMusic:appleMusicBehaviour, .Spotify:spotifyBehaviour, .SoundCloud:soundCloudBehaviour]
+            let behaviours: [Platform:PlatformBehaviour] = [.AppleMusic:appleMusicBehaviour, .Spotify:spotifyBehaviour, .SoundCloud:soundCloudBehaviour, .YouTube:youtubeBehaviour]
             guard let behaviour = behaviours[urlPlatform] else {
                 log.error("Missing behaviour for \(urlPlatform.readableName) platform")
                 viewState = .error()
@@ -134,6 +136,8 @@ struct ShareExtensionView: View {
                     trackAnalysis.spotifyURL = url?.absoluteString
                 case .SoundCloud:
                     trackAnalysis.soundCloudURL = url?.absoluteString
+                case .YouTube:
+                    trackAnalysis.youTubeURL = url?.absoluteString
                 }
                 
                 // UPDATE DB
@@ -150,6 +154,8 @@ struct ShareExtensionView: View {
                     trackAnalysis.spotifyURL = url
                 case .SoundCloud:
                     trackAnalysis.soundCloudURL = url
+                case .YouTube:
+                    trackAnalysis.youTubeURL = url
                 }
             }
             

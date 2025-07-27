@@ -11,6 +11,7 @@ enum Platform: Identifiable, Codable, Equatable, CaseIterable {
     case AppleMusic;
     case Spotify;
     case SoundCloud;
+    case YouTube;
     
     var id: String {
         switch self {
@@ -20,6 +21,8 @@ enum Platform: Identifiable, Codable, Equatable, CaseIterable {
             return "spotify"
         case .SoundCloud:
             return "soundcloud"
+        case .YouTube:
+            return "youtube"
         }
     }
     
@@ -31,6 +34,8 @@ enum Platform: Identifiable, Codable, Equatable, CaseIterable {
             NSLocalizedString("Spotify", comment: "Spotify platform name")
         case .SoundCloud:
             NSLocalizedString("SoundCloud", comment: "SoundCloud platform name")
+        case .YouTube:
+            NSLocalizedString("YouTube", comment: "YouTube platform name")
         }
     }
     
@@ -49,6 +54,8 @@ extension Platform: RawRepresentable {
             self = Platform.Spotify
         case Platform.SoundCloud.id:
             self = Platform.SoundCloud
+        case Platform.YouTube.id:
+            self = Platform.YouTube
         default:
             self = Platform.AppleMusic
         }
