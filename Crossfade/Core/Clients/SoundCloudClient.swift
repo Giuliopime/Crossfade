@@ -98,6 +98,7 @@ extension Data {
 // MARK: - SoundCloud Client Implementation
 @Observable
 class SoundCloudClient: Client {
+    let platform: Platform = .SoundCloud
     let deauthorizableInAppSettings: Bool = false
     
     static let REDIRECT_URI = "crossfade://soundcloud-auth-callback"
@@ -121,8 +122,7 @@ class SoundCloudClient: Client {
     // MARK: - Client Protocol Implementation
     
     var isAuthorized: Bool {
-        guard let tokenInfo = tokenInfo else { return false }
-        return !tokenInfo.isExpired
+        return tokenInfo != nil
     }
     
     func requestAuthorization() async -> AuthorizationRequestResult {

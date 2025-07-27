@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Platform: Identifiable, Codable, Equatable {
+enum Platform: Identifiable, Codable, Equatable, CaseIterable {
     case AppleMusic;
     case Spotify;
     case SoundCloud;
@@ -32,6 +32,10 @@ enum Platform: Identifiable, Codable, Equatable {
         case .SoundCloud:
             NSLocalizedString("SoundCloud", comment: "SoundCloud platform name")
         }
+    }
+    
+    var imageName: String {
+        return "logo_\(id)"
     }
 }
 

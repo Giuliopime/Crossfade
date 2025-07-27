@@ -35,16 +35,10 @@ struct TrackAnalysisView: View {
                 }
                 
                 Section {
-                    if let appleMusicURL = trackAnalysis.url(for: .AppleMusic) {
-                        platformAvailabilityRow(url: appleMusicURL, platform: .AppleMusic)
-                    }
-                    
-                    if let spotifyURL = trackAnalysis.url(for: .Spotify) {
-                        platformAvailabilityRow(url: spotifyURL, platform: .Spotify)
-                    }
-                    
-                    if let soundCloudURL = trackAnalysis.url(for: .SoundCloud) {
-                        platformAvailabilityRow(url: soundCloudURL, platform: .SoundCloud)
+                    ForEach(Platform.allCases) { platform in
+                        if let platformURL = trackAnalysis.url(for: platform) {
+                            platformAvailabilityRow(url: platformURL, platform: platform)
+                        }
                     }
                     
                     if loadedPlatformAvailability && trackAnalysis.platformsCount < 2 {
@@ -108,23 +102,10 @@ struct TrackAnalysisView: View {
     private func platformAvailabilityRow(url: URL, platform: Platform) -> some View {
         HStack(spacing: 16) {
             HStack {
-                switch platform {
-                case .AppleMusic:
-                    Image("logo_apple_music")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 28)
-                case .Spotify:
-                    Image("logo_spotify")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 28)
-                case .SoundCloud:
-                    Image("logo_soundcloud")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 28)
-                }
+                Image(platform.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 28)
                 Text(platform.readableName)
             }
             Spacer()

@@ -38,22 +38,20 @@ struct SettingsTabView: View {
         return count
     }
     
+    private var clients: [any Client] {
+        return [appleMusicClient, spotifyClient, soundCloudClient]
+    }
+    
     @AppStorage(CloudKeyValueKeys.appleMusicBehaviour) var appleMusicBehaviour: PlatformBehaviour = .showAnalysis
     @AppStorage(CloudKeyValueKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
     @AppStorage(CloudKeyValueKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
     
-    private func enablePlatform(_ platform: Platform) async {
-        let clients: [Platform:Client] = [.AppleMusic:appleMusicClient, .Spotify:spotifyClient, .SoundCloud:soundCloudClient]
-        guard let client = clients[platform] else {
-            log.error("Missing client for platform: \(platform.readableName)")
-            return
-        }
-        
+    private func enablePlatform(client: any Client) async {
         let result = await client.requestAuthorization()
         
         switch result {
         case .completed(let success):
-            if !success && platform == .AppleMusic {
+            if !success && client.platform == .AppleMusic {
                 showAppleMusicFailedAuthAlert = true
             }
         case .shouldOpenURL(let url):
@@ -61,13 +59,7 @@ struct SettingsTabView: View {
         }
     }
     
-    private func disablePlatform(_ platform: Platform) async {
-        let clients: [Platform:Client] = [.AppleMusic:appleMusicClient, .Spotify:spotifyClient, .SoundCloud:soundCloudClient]
-        guard let client = clients[platform] else {
-            log.error("Missing client for platform: \(platform.readableName)")
-            return
-        }
-        
+    private func disablePlatform(client: any Client) async {
         if client.deauthorizableInAppSettings {
             await openAppSettings()
         } else {
@@ -95,7 +87,7 @@ struct SettingsTabView: View {
                         } else if appleMusicClient.authStatus == .notDetermined {
                             Button("Try again") {
                                 Task {
-                                    await enablePlatform(.AppleMusic)
+                                    await enablePlatform(client: appleMusicClient)
                                 }
                             }
                         }
@@ -115,7 +107,6 @@ struct SettingsTabView: View {
                             Text("This should not be happening, please contact the developer and notify him about this weird dialog!")
                         }
                     }
-
         }
     }
     
@@ -132,175 +123,39 @@ struct SettingsTabView: View {
     
     var platformsSection: some View {
         Section {
-            HStack {
-                Image("logo_apple_music")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 28)
-                
-                Toggle("Apple Music", isOn: Binding {
-                    appleMusicClient.isAuthorized
-                } set: { newValue in
-                    if newValue {
-                        Task {
-                            await enablePlatform(.AppleMusic)
+            ForEach(clients, id: \.id) { client in
+                HStack {
+                    Image(client.platform.imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 28)
+                    
+                    Toggle(client.platform.readableName, isOn: Binding {
+                        client.isAuthorized
+                    } set: { newValue in
+                        if newValue {
+                            Task {
+                                await enablePlatform(client: client)
+                            }
+                        } else {
+                            Task {
+                                await disablePlatform(client: client)
+                            }
                         }
-                    } else {
-                        Task {
-                            await disablePlatform(.AppleMusic)
-                        }
-                    }
-                })
-            }
-            
-            HStack {
-                Image("logo_spotify")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 28)
-                
-                Toggle("Spotify", isOn: Binding {
-                    spotifyClient.isAuthorized
-                } set: { newValue in
-                    if newValue {
-                        Task {
-                            await enablePlatform(.Spotify)
-                        }
-                    } else {
-                        Task {
-                            await disablePlatform(.Spotify)
-                        }
-                    }
-                })
-            }
-            
-            HStack {
-                Image("logo_soundcloud")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 28)
-                
-                Toggle("SoundCloud", isOn: Binding {
-                    soundCloudClient.isAuthorized
-                } set: { newValue in
-                    if newValue {
-                        Task {
-                            await enablePlatform(.SoundCloud)
-                        }
-                    } else {
-                        Task {
-                            await disablePlatform(.SoundCloud)
-                        }
-                    }
-                })
+                    })
+                }
             }
         } header: {
             Text("Platforms")
         }
     }
     
-    // TODO: Generalize clients
     var behaviourSection: some View {
         NavigationLink {
             List {
                 Section {
-                    if appleMusicClient.isAuthorized {
-                        HStack {
-                            Image("logo_apple_music")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxHeight: 28)
-                            
-                            Text("Apple Music")
-                            
-                            if #available(iOS 18.0, *) {
-                                Picker("", selection: $appleMusicBehaviour) {
-                                    Text("Show Analysis")
-                                        .tag(PlatformBehaviour.showAnalysis)
-                                    
-                                    if spotifyClient.isAuthorized {
-                                        Section("Spotify actions") {
-                                            Text("Copy link")
-                                                .tag(PlatformBehaviour.copy(.Spotify))
-                                            Text("Share link")
-                                                .tag(PlatformBehaviour.share(.Spotify))
-                                            Text("Open")
-                                                .tag(PlatformBehaviour.open(.Spotify))
-                                        }
-                                    }
-                                } currentValueLabel: {
-                                    Text(appleMusicBehaviour.readableName)
-                                }
-                                .pickerStyle(.menu)
-                            } else {
-                                Picker("", selection: $appleMusicBehaviour) {
-                                    Text("Show Analysis")
-                                        .tag(PlatformBehaviour.showAnalysis)
-                                    
-                                    if spotifyClient.isAuthorized {
-                                        Section("Spotify actions") {
-                                            Text("Copy link")
-                                                .tag(PlatformBehaviour.copy(.Spotify))
-                                            Text("Share link")
-                                                .tag(PlatformBehaviour.share(.Spotify))
-                                            Text("Open")
-                                                .tag(PlatformBehaviour.open(.Spotify))
-                                        }
-                                    }
-                                }
-                                .pickerStyle(.menu)
-                            }
-                        }
-                    }
-                    
-                    if spotifyClient.isAuthorized {
-                        HStack {
-                            Image("logo_spotify")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxHeight: 28)
-                            
-                            Text("Spotify")
-                            
-                            
-                            if #available(iOS 18.0, *) {
-                                Picker("", selection: $spotifyBehaviour) {
-                                    Text("Show Analysis")
-                                        .tag(PlatformBehaviour.showAnalysis)
-                                    
-                                    if appleMusicClient.isAuthorized {
-                                        Section("Apple Music actions") {
-                                            Text("Copy link")
-                                                .tag(PlatformBehaviour.copy(.AppleMusic))
-                                            Text("Share link")
-                                                .tag(PlatformBehaviour.share(.AppleMusic))
-                                            Text("Open")
-                                                .tag(PlatformBehaviour.open(.AppleMusic))
-                                        }
-                                    }
-                                } currentValueLabel: {
-                                    Text(spotifyBehaviour.readableName)
-                                }
-                                .pickerStyle(.menu)
-                            } else {
-                                Picker("", selection: $spotifyBehaviour) {
-                                    Text("Show Analysis")
-                                        .tag(PlatformBehaviour.showAnalysis)
-                                    
-                                    if appleMusicClient.isAuthorized {
-                                        Section("Apple Music actions") {
-                                            Text("Copy link")
-                                                .tag(PlatformBehaviour.copy(.AppleMusic))
-                                            Text("Share link")
-                                                .tag(PlatformBehaviour.share(.AppleMusic))
-                                            Text("Open")
-                                                .tag(PlatformBehaviour.open(.AppleMusic))
-                                        }
-                                    }
-                                }
-                                .pickerStyle(.menu)
-                            }
-                        }
+                    ForEach(clients, id: \.id) { client in
+                        platformBehaviourView(for: client)
                     }
                 } footer: {
                     Text("Choose what happens when analyzing a track based on the platform it comes from.")
@@ -319,7 +174,72 @@ struct SettingsTabView: View {
         }
     }
     
-    var supportAndFeedbackSection: some View {
+    private func platformBehaviourView(for client: any Client) -> some View {
+        let platformBehaviour: Binding<PlatformBehaviour>
+        switch client.platform {
+        case .AppleMusic:
+            platformBehaviour = $appleMusicBehaviour
+        case .Spotify:
+            platformBehaviour = $spotifyBehaviour
+        case .SoundCloud:
+            platformBehaviour = $soundCloudBehaviour
+        }
+        
+        let otherClients = clients.filter { $0.id != client.id }
+        
+        return HStack {
+            Image(client.platform.imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(maxHeight: 28)
+            
+            Text(client.platform.readableName)
+            
+            if #available(iOS 18.0, *) {
+                Picker("", selection: platformBehaviour) {
+                    Text("Show Analysis")
+                        .tag(PlatformBehaviour.showAnalysis)
+                    
+                    ForEach(otherClients, id: \.id) { otherClient in
+                        if otherClient.isAuthorized {
+                            Section("\(otherClient.platform.readableName) actions") {
+                                Text("Copy link")
+                                    .tag(PlatformBehaviour.copy(otherClient.platform))
+                                Text("Share link")
+                                    .tag(PlatformBehaviour.share(otherClient.platform))
+                                Text("Open")
+                                    .tag(PlatformBehaviour.open(otherClient.platform))
+                            }
+                        }
+                    }
+                } currentValueLabel: {
+                    Text(platformBehaviour.wrappedValue.readableName)
+                }
+                .pickerStyle(.menu)
+            } else {
+                Picker("", selection: platformBehaviour) {
+                    Text("Show Analysis")
+                        .tag(PlatformBehaviour.showAnalysis)
+                    
+                    ForEach(otherClients, id: \.id) { otherClient in
+                        if otherClient.isAuthorized {
+                            Section("\(otherClient.platform.readableName) actions") {
+                                Text("Copy link")
+                                    .tag(PlatformBehaviour.copy(otherClient.platform))
+                                Text("Share link")
+                                    .tag(PlatformBehaviour.share(otherClient.platform))
+                                Text("Open")
+                                    .tag(PlatformBehaviour.open(otherClient.platform))
+                            }
+                        }
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+        }
+    }
+    
+    private var supportAndFeedbackSection: some View {
         Section {
             Link(destination: URL(string: "https://crossfade.giuliopime.dev/contact")!) {
                 HStack {
@@ -356,7 +276,7 @@ struct SettingsTabView: View {
         }
     }
     
-    var aboutSection: some View {
+    private var aboutSection: some View {
         Section {
             NavigationLink {
                 // TODO: Developer page

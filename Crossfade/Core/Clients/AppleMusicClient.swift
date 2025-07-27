@@ -13,6 +13,7 @@ fileprivate let log = Logger(subsystem: "App", category: "AppleMusicClient")
 
 @Observable
 class AppleMusicClient: Client {
+    let platform: Platform = .AppleMusic
     let deauthorizableInAppSettings: Bool = true
     
     private(set) var authStatus: MusicAuthorization.Status = .notDetermined

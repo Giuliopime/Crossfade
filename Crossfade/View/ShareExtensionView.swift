@@ -75,8 +75,8 @@ struct ShareExtensionView: View {
         guard let urlPlatform = urlPlatform else { return }
         
         // DETERMINE CLIENT TO USE FOR FETCHING WITH URL
-        let clients: [Platform:Client] = [.AppleMusic : appleMusicClient, .Spotify : spotifyClient, .SoundCloud : soundCloudClient]
-        guard let clientToFetchWithURL = clients[urlPlatform] else {
+        let clients: [any Client] = [appleMusicClient, spotifyClient, soundCloudClient]
+        guard let clientToFetchWithURL = clients.first(where: { $0.platform == urlPlatform }) else {
             log.error("Missing client for \(urlPlatform.readableName) platform")
             viewState = .error()
             return
@@ -113,7 +113,7 @@ struct ShareExtensionView: View {
             
             /// Returns nil if some kind of issue occurs, it automatically sets the correct viewState for it so you just need to interrupt execution
             func fetchTrackURLAndUpdateDatabase(for platform: Platform) async throws -> URL? {
-                guard let clientToFetchWithTrackInfo = clients[platform] else {
+                guard let clientToFetchWithTrackInfo = clients.first(where: { $0.platform == platform }) else {
                     log.error("Missing client for \(urlPlatform.readableName) platform")
                     viewState = .error()
                     return nil
@@ -156,10 +156,10 @@ struct ShareExtensionView: View {
             switch behaviour {
             case .showAnalysis:
                 // FETCH OTHER PLATFORMS URL
-                let clientsToFetchWithTrackInfo = clients.filter { $0.key != urlPlatform && $0.value.isAuthorized == true }
-                for (platform, client) in clientsToFetchWithTrackInfo {
+                let clientsToFetchWithTrackInfo = clients.filter { $0.platform != urlPlatform && $0.isAuthorized }
+                for client in clientsToFetchWithTrackInfo {
                     let track = try await client.fetchTrackInfo(title: trackAnalysis.title, artistName: trackAnalysis.artistName)
-                    setTrackAnalysisURL(for: platform, with: track.urlString)
+                    setTrackAnalysisURL(for: client.platform, with: track.urlString)
                 }
                 
                 upsertDB(trackAnalysis: trackAnalysis)
@@ -270,7 +270,7 @@ struct ShareExtensionView: View {
         
         switch behaviour {
         case .copy(let platform):
-            loadingText = "Copying \(platform.readableName) url..."
+            loadingText = "Copying \(platform.readableName) link..."
             
         case .share(let platform):
             loadingText = "Preparing \(platform.readableName) content to share..."
@@ -298,17 +298,17 @@ struct ShareExtensionView: View {
         
         switch behaviour {
         case .copy(let platform):
-            title = "Copied to Clipboard"
+            title = "Copied \(platform.readableName) link"
             image = "document.on.clipboard"
             description = "\(platform.readableName) link has been successfully copied to your clipboard and is ready to paste. You can change this behaviour in the app settings."
             
         case .share(let platform):
-            title = "Content Shared"
+            title = "Sharing \(platform.readableName) link"
             image = "square.and.arrow.up"
             description = "Opened share sheet for \(platform.readableName) link. You can change this behaviour in the app settings."
             
         case .open(let platform):
-            title = "App Opened"
+            title = "Opened \(platform.readableName)"
             image = "arrow.up.right.square"
             description = "Opened \(platform.readableName) link. You can change this behaviour in the app settings."
             
