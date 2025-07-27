@@ -46,6 +46,7 @@ class ShareViewController: UIViewController {
                     .environment(SpotifyClient())
                     .environment(SoundCloudClient())
                     .modelContainer(for: [TrackAnalysis.self])
+                    .defaultAppStorage(UserDefaults(suiteName: Identifiers.app_group)!)
             )
             self.addChild(contentView)
             self.view.addSubview(contentView.view)

@@ -103,6 +103,8 @@ struct ShareExtensionView: View {
                 return
             }
             
+            log.info("\(behaviour.readableName)")
+            
             if behaviour == .showAnalysis {
                 viewState = .analyzedSong
             } else {
@@ -135,7 +137,7 @@ struct ShareExtensionView: View {
                 }
                 
                 // UPDATE DB
-                context.insert(trackAnalysis)
+                upsertDB(trackAnalysis: trackAnalysis)
                 
                 return url
             }
@@ -160,7 +162,7 @@ struct ShareExtensionView: View {
                     setTrackAnalysisURL(for: platform, with: track.urlString)
                 }
                 
-                context.insert(trackAnalysis)
+                upsertDB(trackAnalysis: trackAnalysis)
                 loadedPlatformAvailability = true
             case .copy(let platform):
                 guard let url = try await fetchTrackURLAndUpdateDatabase(for: platform) else { break }
@@ -178,6 +180,23 @@ struct ShareExtensionView: View {
         } catch {
             log.error("\(error)")
             viewState = .error(error)
+        }
+    }
+    
+    private func upsertDB(trackAnalysis: TrackAnalysis) {
+        let id = trackAnalysis.id
+        
+        do {
+            try context.transaction {
+                try context.delete(
+                    model: TrackAnalysis.self,
+                    where: #Predicate { $0.id == id }
+                )
+                
+                context.insert(trackAnalysis)
+            }
+        } catch {
+            log.error("Failed to upsert track analysis: \(error)")
         }
     }
     
