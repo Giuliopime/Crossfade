@@ -441,7 +441,7 @@ class YouTubeClient: Client {
             URLQueryItem(name: "part", value: "snippet"),
             URLQueryItem(name: "q", value: searchQuery),
             URLQueryItem(name: "type", value: "video"),
-            URLQueryItem(name: "maxResults", value: "1"),
+            URLQueryItem(name: "maxResults", value: "3"),
             URLQueryItem(name: "order", value: "relevance")
         ]
         

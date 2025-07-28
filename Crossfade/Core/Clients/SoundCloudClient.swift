@@ -444,7 +444,7 @@ class SoundCloudClient: Client {
         
         components.queryItems = [
             URLQueryItem(name: "q", value: searchQuery),
-            URLQueryItem(name: "limit", value: "1"),
+            URLQueryItem(name: "limit", value: "3"),
             URLQueryItem(name: "linked_partitioning", value: "true")
         ]
         

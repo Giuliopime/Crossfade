@@ -246,7 +246,7 @@ class SpotifyClient: Client {
             guard let searchResult = try await spotify.search(
                 query: query,
                 categories: [.track],
-                limit: 1
+                limit: 3
             ).awaitSingleValue() else {
                 throw ClientError.trackNotFound
             }
