@@ -455,7 +455,9 @@ class SoundCloudClient: Client {
         let data = try await makeAuthenticatedRequest(url: searchURL)
         let searchResponse = try JSONDecoder().decode(SoundCloudSearchResponse.self, from: data)
         
-        guard let track = searchResponse.collection.first else { throw ClientError.trackNotFound }
+        guard let track = await TrackMatcher.findBestMatch(searchResponse.collection, targetTitle: title, targetArtist: artistName) else {
+            throw ClientError.trackNotFound
+        }
         
         return TrackInfo(track)
     }

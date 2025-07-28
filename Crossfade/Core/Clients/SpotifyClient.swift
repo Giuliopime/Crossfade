@@ -243,18 +243,23 @@ class SpotifyClient: Client {
         let query = "\(title) - \(artistName)"
         
         do {
-            let searchResult = try await spotify.search(
+            guard let searchResult = try await spotify.search(
                 query: query,
                 categories: [.track],
                 limit: 1
-            ).awaitSingleValue()
-            
-            if let track = searchResult?.tracks?.items.first {
-                return TrackInfo(track)
-            } else {
+            ).awaitSingleValue() else {
                 throw ClientError.trackNotFound
             }
             
+            guard let tracks = searchResult.tracks?.items else {
+                throw ClientError.trackNotFound
+            }
+            
+            guard let track = await TrackMatcher.findBestMatch(tracks, targetTitle: title, targetArtist: artistName) else {
+                throw ClientError.trackNotFound
+            }
+            
+            return TrackInfo(track)
         } catch {
             log.error("Failed to search for Spotify song info: \(error)")
             throw ClientError.unknown(error)

@@ -454,11 +454,11 @@ class YouTubeClient: Client {
         do {
             let searchResponse = try JSONDecoder().decode(YouTubeSearchResponse.self, from: data)
             
-            guard let searchResult = searchResponse.items.first else {
+            guard let track = await TrackMatcher.findBestMatch(searchResponse.items.map { $0.asYouTubeVideo }, targetTitle: title, targetArtist: artistName) else {
                 throw ClientError.trackNotFound
             }
             
-            return TrackInfo(searchResult.asYouTubeVideo)
+            return TrackInfo(track)
         } catch is DecodingError {
             throw ClientError.trackNotFound
         }

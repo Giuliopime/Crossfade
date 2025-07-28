@@ -8,4 +8,3 @@
 - YouTube API: [Dashboard](https://console.cloud.google.com/apis/credentials)
 
 ### improvements
-- [ ] use a better matching algorithm (Levenshtein distance)
