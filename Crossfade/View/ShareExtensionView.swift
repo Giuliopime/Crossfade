@@ -63,12 +63,15 @@ struct ShareExtensionView: View {
         
         let urlPlatform: Platform?
         
-        if (host.contains("apple")) {
+        // TODO: Figure out a better way as links can be shortened
+        if host.contains("apple") {
             urlPlatform = .AppleMusic
-        } else if (host.contains("spotify")) {
+        } else if host.contains("spotify") {
             urlPlatform = .Spotify
-        } else if (host.contains("soundcloud")) {
+        } else if host.contains("soundcloud") {
             urlPlatform = .SoundCloud
+        } else if host.contains("youtube") {
+            urlPlatform = .YouTube
         } else {
             viewState = .unsupportedPlatform
             return
@@ -164,8 +167,10 @@ struct ShareExtensionView: View {
                 // FETCH OTHER PLATFORMS URL
                 let clientsToFetchWithTrackInfo = clients.filter { $0.platform != urlPlatform && $0.isAuthorized }
                 for client in clientsToFetchWithTrackInfo {
-                    let track = try await client.fetchTrackInfo(title: trackAnalysis.title, artistName: trackAnalysis.artistName)
-                    setTrackAnalysisURL(for: client.platform, with: track.urlString)
+                    do {
+                        let track = try await client.fetchTrackInfo(title: trackAnalysis.title, artistName: trackAnalysis.artistName)
+                        setTrackAnalysisURL(for: client.platform, with: track.urlString)
+                    } catch is ClientError {}
                 }
                 
                 upsertDB(trackAnalysis: trackAnalysis)

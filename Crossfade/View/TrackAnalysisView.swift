@@ -11,6 +11,15 @@ struct TrackAnalysisView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.openURL) private var openURL
     
+    @Environment(AppleMusicClient.self) private var appleMusicClient
+    @Environment(SpotifyClient.self) private var spotifyClient
+    @Environment(SoundCloudClient.self) private var soundCloudClient
+    @Environment(YouTubeClient.self) private var youTubeClient
+    
+    private var clients: [any Client] {
+        return [appleMusicClient, spotifyClient, soundCloudClient, youTubeClient]
+    }
+    
     let trackAnalysis: TrackAnalysis
     let loadedPlatformAvailability: Bool
     
@@ -36,8 +45,8 @@ struct TrackAnalysisView: View {
                 
                 Section {
                     ForEach(Platform.allCases) { platform in
-                        if let platformURL = trackAnalysis.url(for: platform) {
-                            platformAvailabilityRow(url: platformURL, platform: platform)
+                        if let client = clients.first(where: { $0.platform == platform }), client.isAuthorized {
+                            platformAvailabilityRow(url: trackAnalysis.url(for: platform) , platform: platform)
                         }
                     }
                     
@@ -99,32 +108,42 @@ struct TrackAnalysisView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
-    private func platformAvailabilityRow(url: URL, platform: Platform) -> some View {
+    private func platformAvailabilityRow(url: URL?, platform: Platform) -> some View {
         HStack(spacing: 16) {
             HStack {
                 Image(platform.imageName)
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 28)
+                    .frame(maxWidth: 28, maxHeight: 28)
                 Text(platform.readableName)
             }
             Spacer()
             
-            Button("Copy", systemImage: "document.on.document") {
-                copyToClipboard(url)
-            }
-            .labelStyle(.iconOnly)
-            .buttonStyle(.borderless)
-            
-            ShareLink(item: url)
+            if let url = url {
+                Button("Copy", systemImage: "document.on.document") {
+                    copyToClipboard(url)
+                }
                 .labelStyle(.iconOnly)
                 .buttonStyle(.borderless)
-            
-            Button("Open", systemImage: "arrow.up.right") {
-                openURL(url)
+                
+                ShareLink(item: url)
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.borderless)
+                
+                Button("Open", systemImage: "arrow.up.right") {
+                    openURL(url)
+                }
+                .labelStyle(.iconOnly)
+                .buttonStyle(.borderless)
+            } else {
+                if !loadedPlatformAvailability {
+                    ProgressView()
+                } else {
+                    Text("Not found")
+                        .font(.callout)
+                        .foregroundStyle(.red)
+                }
             }
-            .labelStyle(.iconOnly)
-            .buttonStyle(.borderless)
         }
     }
     

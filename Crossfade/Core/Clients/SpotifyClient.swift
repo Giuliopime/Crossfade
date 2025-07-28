@@ -268,7 +268,7 @@ class SpotifyClient: Client {
     private func extractTrackID(from url: URL) -> String? {
         let urlString = url.absoluteString
         
-        if urlString.contains("open.spotify.com/track/") {
+        if urlString.contains("open.spotify.com") {
             let components = urlString.components(separatedBy: "/")
             if let trackIndex = components.firstIndex(of: "track"),
                trackIndex + 1 < components.count {

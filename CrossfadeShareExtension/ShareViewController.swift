@@ -16,6 +16,7 @@ class ShareViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let textDataType = UTType.text.identifier
         let urlDataType = UTType.url.identifier
         
         if let inputItem = (extensionContext?.inputItems.first as? NSExtensionItem),
@@ -24,6 +25,14 @@ class ShareViewController: UIViewController {
                 itemProvider.loadItem(forTypeIdentifier: urlDataType, options: nil) { (url, error) in
                     if error == nil {
                         if let url = (url as? URL) {
+                            self.showView(url: url)
+                        }
+                    }
+                }
+            } else if itemProvider.hasItemConformingToTypeIdentifier(textDataType) {
+                itemProvider.loadItem(forTypeIdentifier: textDataType, options: nil) { (text, error) in
+                    if error == nil {
+                        if let urlString = (text as? String), let url = URL(string: urlString.trimmingCharacters(in: .whitespacesAndNewlines)) {
                             self.showView(url: url)
                         }
                     }

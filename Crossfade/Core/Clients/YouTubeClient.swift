@@ -414,13 +414,18 @@ class YouTubeClient: Client {
         }
         
         let data = try await makeAuthenticatedRequest(url: videosURL)
-        let videoResponse = try JSONDecoder().decode(YouTubeVideoResponse.self, from: data)
         
-        guard let video = videoResponse.items.first else {
+        do {
+            let videoResponse = try JSONDecoder().decode(YouTubeVideoResponse.self, from: data)
+            
+            guard let video = videoResponse.items.first else {
+                throw ClientError.trackNotFound
+            }
+            
+            return TrackInfo(video)
+        } catch is DecodingError {
             throw ClientError.trackNotFound
         }
-        
-        return TrackInfo(video)
     }
     
     func fetchTrackInfo(title: String, artistName: String) async throws -> TrackInfo {
@@ -445,14 +450,18 @@ class YouTubeClient: Client {
         }
         
         let data = try await makeAuthenticatedRequest(url: searchURL)
-        let searchResponse = try JSONDecoder().decode(YouTubeSearchResponse.self, from: data)
         
-        guard let searchResult = searchResponse.items.first else {
+        do {
+            let searchResponse = try JSONDecoder().decode(YouTubeSearchResponse.self, from: data)
+            
+            guard let searchResult = searchResponse.items.first else {
+                throw ClientError.trackNotFound
+            }
+            
+            return TrackInfo(searchResult.asYouTubeVideo)
+        } catch is DecodingError {
             throw ClientError.trackNotFound
         }
-        
-        // Now get detailed video info using the video ID
-        return try await fetchTrackInfo(url: URL(string: "https://www.youtube.com/watch?v=\(searchResult.id.videoId)")!)
     }
     
     // MARK: - Helper Methods
@@ -484,19 +493,17 @@ class YouTubeClient: Client {
 struct YouTubeVideo: Codable {
     let id: String
     let snippet: YouTubeVideoSnippet
-    let contentDetails: YouTubeContentDetails?
+    
+    init(id: String, snippet: YouTubeVideoSnippet) {
+        self.id = id
+        self.snippet = snippet
+    }
 }
 
 struct YouTubeVideoSnippet: Codable {
     let title: String
     let channelTitle: String
     let thumbnails: YouTubeThumbnails
-    let publishedAt: String
-    let description: String
-}
-
-struct YouTubeContentDetails: Codable {
-    let duration: String // ISO 8601 duration format
 }
 
 struct YouTubeThumbnails: Codable {
@@ -513,28 +520,25 @@ struct YouTubeThumbnail: Codable {
     let height: Int?
 }
 
-struct YouTubeVideoResponse: Codable {
+fileprivate struct YouTubeVideoResponse: Codable {
     let items: [YouTubeVideo]
-    let pageInfo: YouTubePageInfo
 }
 
-struct YouTubeSearchResponse: Codable {
+fileprivate struct YouTubeSearchResponse: Codable {
     let items: [YouTubeSearchResult]
-    let pageInfo: YouTubePageInfo
 }
 
-struct YouTubeSearchResult: Codable {
+fileprivate struct YouTubeSearchResult: Codable {
     let id: YouTubeVideoId
     let snippet: YouTubeVideoSnippet
+    
+    var asYouTubeVideo: YouTubeVideo {
+        YouTubeVideo(id: id.videoId, snippet: snippet)
+    }
 }
 
-struct YouTubeVideoId: Codable {
+fileprivate struct YouTubeVideoId: Codable {
     let videoId: String
-}
-
-struct YouTubePageInfo: Codable {
-    let totalResults: Int
-    let resultsPerPage: Int
 }
 
 // MARK: - Supporting Types
@@ -553,13 +557,4 @@ fileprivate struct YouTubeTokenResponse: Codable {
         case scope
         case tokenType = "token_type"
     }
-}
-
-
-enum YouTubeError: Error {
-    case authenticationRequired
-    case networkError
-    case apiError(Int)
-    case invalidVideoURL
-    case videoNotFound
 }

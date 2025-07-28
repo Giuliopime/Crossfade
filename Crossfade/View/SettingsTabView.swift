@@ -198,7 +198,7 @@ struct SettingsTabView: View {
             Image(client.platform.imageName)
                 .resizable()
                 .scaledToFit()
-                .frame(maxHeight: 28)
+                .frame(maxWidth: 28, maxHeight: 28)
             
             Text(client.platform.readableName)
             
