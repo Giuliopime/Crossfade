@@ -77,18 +77,26 @@ class AppleMusicClient: Client {
     }
     
     @concurrent
-    func fetchTrackInfo(title: String, artistName: String) async throws -> TrackInfo {
+    func fetchTrackInfo(title: String, artistName: String, useRefinedMatching: Bool = false) async throws -> TrackInfo {
         do {
-            var request = MusicCatalogSearchRequest(term: "\(artistName) - \(title)", types: [Song.self])
-            request.limit = 3
+            var request = MusicCatalogSearchRequest(term: "\(artistName) \(title)", types: [Song.self])
+            request.limit = useRefinedMatching ? 3 : 1
             
             let response = try await request.response()
             
-            guard let track = await TrackMatcher.findBestMatch(response.songs.map { $0 }, targetTitle: title, targetArtist: artistName) else {
-                throw ClientError.trackNotFound
+            if useRefinedMatching {
+                guard let track = await TrackMatcher.findBestMatch(response.songs.map { $0 }, targetTitle: title, targetArtist: artistName) else {
+                    throw ClientError.trackNotFound
+                }
+                
+                return TrackInfo(track)
+            } else {
+                guard let track = response.songs.first else {
+                    throw ClientError.trackNotFound
+                }
+                
+                return TrackInfo(track)
             }
-            
-            return TrackInfo(track)
         } catch {
             await log.error("Failed to fetch song info: \(error)")
             throw ClientError.unknown(error)

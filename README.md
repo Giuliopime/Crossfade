@@ -8,3 +8,4 @@
 - YouTube API: [Dashboard](https://console.cloud.google.com/apis/credentials)
 
 ### improvements
+- [ ] AI track information 

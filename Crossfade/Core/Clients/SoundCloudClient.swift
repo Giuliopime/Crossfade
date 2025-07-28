@@ -433,7 +433,7 @@ class SoundCloudClient: Client {
         return TrackInfo(track)
     }
     
-    func fetchTrackInfo(title: String, artistName: String) async throws -> TrackInfo {
+    func fetchTrackInfo(title: String, artistName: String, useRefinedMatching: Bool = false) async throws -> TrackInfo {
         // Use the /tracks search endpoint to find track by title and artist
         guard var components = URLComponents(string: "\(SoundCloudConfig.baseURL)/tracks") else {
             throw ClientError.invalidURL
@@ -444,7 +444,7 @@ class SoundCloudClient: Client {
         
         components.queryItems = [
             URLQueryItem(name: "q", value: searchQuery),
-            URLQueryItem(name: "limit", value: "3"),
+            URLQueryItem(name: "limit", value: useRefinedMatching ? "3" : "1"),
             URLQueryItem(name: "linked_partitioning", value: "true")
         ]
         
@@ -455,11 +455,19 @@ class SoundCloudClient: Client {
         let data = try await makeAuthenticatedRequest(url: searchURL)
         let searchResponse = try JSONDecoder().decode(SoundCloudSearchResponse.self, from: data)
         
-        guard let track = await TrackMatcher.findBestMatch(searchResponse.collection, targetTitle: title, targetArtist: artistName) else {
-            throw ClientError.trackNotFound
+        if useRefinedMatching {
+            guard let track = await TrackMatcher.findBestMatch(searchResponse.collection, targetTitle: title, targetArtist: artistName) else {
+                throw ClientError.trackNotFound
+            }
+            
+            return TrackInfo(track)
+        } else {
+            guard let track = searchResponse.collection.first else {
+                throw ClientError.trackNotFound
+            }
+            
+            return TrackInfo(track)
         }
-        
-        return TrackInfo(track)
     }
 }
 

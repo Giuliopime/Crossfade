@@ -51,6 +51,8 @@ struct SettingsTabView: View {
     @AppStorage(AppStorageKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
     @AppStorage(AppStorageKeys.youTubeBehaviour) var youtubeBehaviour: PlatformBehaviour = .showAnalysis
     
+    @AppStorage(AppStorageKeys.refinedMatching) var refinedMatching = false
+    
     private func enablePlatform(client: any Client) async {
         let result = await client.requestAuthorization()
         
@@ -164,6 +166,14 @@ struct SettingsTabView: View {
                     }
                 } footer: {
                     Text("Choose what happens when analyzing a track based on the platform it comes from.")
+                }
+                
+                Section {
+                    Toggle("Refined Matching", isOn: $refinedMatching)
+                } header: {
+                    Text("Experimental features")
+                } footer: {
+                    Text("Performs some advanced matching techniques for platforms availability and filters out tracks with clearly incorrect title or artist. This might perform worse for SoundCloud and YouTube.")
                 }
             }
             .navigationTitle("Behaviour")

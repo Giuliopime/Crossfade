@@ -428,7 +428,7 @@ class YouTubeClient: Client {
         }
     }
     
-    func fetchTrackInfo(title: String, artistName: String) async throws -> TrackInfo {
+    func fetchTrackInfo(title: String, artistName: String, useRefinedMatching: Bool = false) async throws -> TrackInfo {
         // Use the /search endpoint to find video by title and artist
         guard var components = URLComponents(string: "\(YouTubeConfig.baseURL)/search") else {
             throw ClientError.invalidURL
@@ -441,7 +441,7 @@ class YouTubeClient: Client {
             URLQueryItem(name: "part", value: "snippet"),
             URLQueryItem(name: "q", value: searchQuery),
             URLQueryItem(name: "type", value: "video"),
-            URLQueryItem(name: "maxResults", value: "3"),
+            URLQueryItem(name: "maxResults", value: useRefinedMatching ? "3" : "1"),
             URLQueryItem(name: "order", value: "relevance")
         ]
         
@@ -454,11 +454,19 @@ class YouTubeClient: Client {
         do {
             let searchResponse = try JSONDecoder().decode(YouTubeSearchResponse.self, from: data)
             
-            guard let track = await TrackMatcher.findBestMatch(searchResponse.items.map { $0.asYouTubeVideo }, targetTitle: title, targetArtist: artistName) else {
-                throw ClientError.trackNotFound
+            if useRefinedMatching {
+                guard let track = await TrackMatcher.findBestMatch(searchResponse.items.map { $0.asYouTubeVideo }, targetTitle: title, targetArtist: artistName) else {
+                    throw ClientError.trackNotFound
+                }
+                
+                return TrackInfo(track)
+            } else {
+                guard let track = searchResponse.items.first else {
+                    throw ClientError.trackNotFound
+                }
+                
+                return TrackInfo(track.asYouTubeVideo)
             }
-            
-            return TrackInfo(track)
         } catch is DecodingError {
             throw ClientError.trackNotFound
         }

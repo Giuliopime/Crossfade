@@ -9,8 +9,6 @@ import Foundation
 import MusicKit
 import SpotifyWebAPI
 
-// TODO: Check SoundCloud and YouTube implementation, many times user upload tracks that have the artist in the title, and the user username is irrelevant
-// idk if platforms searches are already optimized so maybe this is not needed, might put a toggle in the app to enable this or not
 struct TrackMatcher {
     @concurrent
     static func findBestMatch(_ tracks: [MusicKit.Song], targetTitle: String, targetArtist: String) async -> MusicKit.Song? {

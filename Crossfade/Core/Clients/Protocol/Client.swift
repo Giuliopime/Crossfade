@@ -16,7 +16,7 @@ protocol Client {
     func deauthorize()
     
     func fetchTrackInfo(url: URL) async throws -> TrackInfo
-    func fetchTrackInfo(title: String, artistName: String) async throws -> TrackInfo
+    func fetchTrackInfo(title: String, artistName: String, useRefinedMatching: Bool) async throws -> TrackInfo
 }
 
 enum AuthorizationRequestResult {

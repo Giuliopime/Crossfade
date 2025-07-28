@@ -42,6 +42,8 @@ struct ShareExtensionView: View {
     @AppStorage(AppStorageKeys.spotifyBehaviour) var spotifyBehaviour: PlatformBehaviour = .showAnalysis
     @AppStorage(AppStorageKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
     @AppStorage(AppStorageKeys.youTubeBehaviour) var youtubeBehaviour: PlatformBehaviour = .showAnalysis
+    
+    @AppStorage(AppStorageKeys.refinedMatching) var refinedMatching = false
 
     let url: URL
     
@@ -129,7 +131,7 @@ struct ShareExtensionView: View {
                     return nil
                 }
                 
-                let url = try await clientToFetchWithTrackInfo.fetchTrackInfo(title: trackAnalysis.title, artistName: trackAnalysis.artistName).url
+                let url = try await clientToFetchWithTrackInfo.fetchTrackInfo(title: trackAnalysis.title, artistName: trackAnalysis.artistName, useRefinedMatching: refinedMatching).url
                 
                 // UPDATE TRACK ANALYSIS
                 switch platform {
@@ -168,7 +170,7 @@ struct ShareExtensionView: View {
                 let clientsToFetchWithTrackInfo = clients.filter { $0.platform != urlPlatform && $0.isAuthorized }
                 for client in clientsToFetchWithTrackInfo {
                     do {
-                        let track = try await client.fetchTrackInfo(title: trackAnalysis.title, artistName: trackAnalysis.artistName)
+                        let track = try await client.fetchTrackInfo(title: trackAnalysis.title, artistName: trackAnalysis.artistName, useRefinedMatching: refinedMatching)
                         setTrackAnalysisURL(for: client.platform, with: track.urlString)
                     } catch is ClientError {}
                 }

@@ -239,14 +239,14 @@ class SpotifyClient: Client {
         }
     }
     
-    func fetchTrackInfo(title: String, artistName: String) async throws -> TrackInfo {
-        let query = "\(title) - \(artistName)"
+    func fetchTrackInfo(title: String, artistName: String, useRefinedMatching: Bool = false) async throws -> TrackInfo {
+        let query = "\(title) \(artistName)"
         
         do {
             guard let searchResult = try await spotify.search(
                 query: query,
                 categories: [.track],
-                limit: 3
+                limit: useRefinedMatching ? 3 : 1
             ).awaitSingleValue() else {
                 throw ClientError.trackNotFound
             }
@@ -255,11 +255,19 @@ class SpotifyClient: Client {
                 throw ClientError.trackNotFound
             }
             
-            guard let track = await TrackMatcher.findBestMatch(tracks, targetTitle: title, targetArtist: artistName) else {
-                throw ClientError.trackNotFound
+            if useRefinedMatching {
+                guard let track = await TrackMatcher.findBestMatch(tracks, targetTitle: title, targetArtist: artistName) else {
+                    throw ClientError.trackNotFound
+                }
+                
+                return TrackInfo(track)
+            } else {
+                guard let track = tracks.first else {
+                    throw ClientError.trackNotFound
+                }
+                
+                return TrackInfo(track)
             }
-            
-            return TrackInfo(track)
         } catch {
             log.error("Failed to search for Spotify song info: \(error)")
             throw ClientError.unknown(error)
