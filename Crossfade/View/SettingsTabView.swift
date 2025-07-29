@@ -295,17 +295,22 @@ struct SettingsTabView: View {
     
     private var aboutSection: some View {
         Section {
-            NavigationLink {
-                // TODO: Developer page
-            } label: {
-                Label(title: {
-                    Text("Developer")
-                        .foregroundStyle(Color.primary)
-                }, icon: {
-                    Image(systemName: "hammer.fill")
-                        .foregroundStyle(Color.primary)
-                })
-                .labelStyle(ColorfulIconLabelStyle(color: Color.systemBackgroundSecondary))
+            Link(destination: URL(string: "https://giuliopime.dev")!) {
+                HStack {
+                    Label(title: {
+                        Text("Craftsman")
+                            .foregroundStyle(Color.primary)
+                    }, icon: {
+                        Image(systemName: "hammer.fill")
+                            .foregroundStyle(Color.primary)
+                    })
+                    .labelStyle(ColorfulIconLabelStyle(color: Color.systemBackgroundSecondary))
+                    
+                    Spacer()
+                    
+                    Image(systemName: "arrow.up.right")
+                        .foregroundStyle(.gray)
+                }
             }
 
             Link(destination: URL(string: "https://crossfade.giuliopime.dev/privacy")!) {

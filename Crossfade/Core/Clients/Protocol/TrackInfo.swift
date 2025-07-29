@@ -8,7 +8,6 @@
 import Foundation
 import MusicKit
 import SpotifyWebAPI
-import struct SoundCloud.Track
 
 struct TrackInfo {
     var platform: Platform
