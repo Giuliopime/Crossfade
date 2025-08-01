@@ -72,6 +72,7 @@
 				Core/TrackMatcher.swift,
 				Core/URLSchemeParser.swift,
 				Data/TrackAnalysis.swift,
+				View/ConcentricCirclesView.swift,
 				View/Navigation/HomeTab.swift,
 				View/ShareExtensionView.swift,
 				View/TrackAnalysisView.swift,

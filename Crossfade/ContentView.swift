@@ -10,12 +10,22 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(NavigationManager.self) private var navigationManager
+    @AppStorage(AppStorageKeys.onboardingShowed) private var onboardingShowed: Bool = false
     
     var body: some View {
+        tabView
+            .fullScreenCover(isPresented: $onboardingShowed) {
+                OnboardingView {
+                    onboardingShowed = true
+                }
+            }
+    }
+    
+    private var tabView: some View {
         if #available(iOS 18.0, *) {
             @Bindable var navigationManager = navigationManager
             
-            TabView(selection: $navigationManager.selectedHomeTab) {
+            return TabView(selection: $navigationManager.selectedHomeTab) {
                 Tab("History", systemImage: "clock", value: HomeTab.history) {
                     HistoryTabView()
                 }
@@ -25,7 +35,7 @@ struct ContentView: View {
                 }
             }
         } else {
-            TabView {
+            return TabView {
                 HistoryTabView()
                     .tabItem {
                         Image(systemName: "clock")
