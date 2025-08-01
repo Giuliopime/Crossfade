@@ -14,11 +14,11 @@ struct ContentView: View {
     
     var body: some View {
         tabView
-            .fullScreenCover(isPresented: $onboardingShowed) {
-                OnboardingView {
-                    onboardingShowed = true
-                }
-            }
+//            .fullScreenCover(isPresented: $onboardingShowed) {
+//                OnboardingView {
+//                    onboardingShowed = true
+//                }
+//            }
     }
     
     private var tabView: some View {

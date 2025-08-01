@@ -50,6 +50,7 @@ struct StepInfo: Equatable {
     }
 }
 
+@available(iOS 26.0, *)
 struct OnboardingView: View {
     private static let steps: [StepInfo] = [
         .init(
@@ -69,7 +70,7 @@ struct OnboardingView: View {
         ),
         .init(
             title: AttributedString("Which ") + coloredString("Platforms"),
-            description: "Enable the platform that you are interested in.",
+            description: "Enable the platforms that you are interested in.",
             type: .platformSetup
         ),
         .init(
@@ -79,11 +80,17 @@ struct OnboardingView: View {
         )
     ]
     
+    @Environment(\.colorScheme) var colorScheme
+    
+//    @Environment(AppleMusicClient.self) private var appleMusicClient
+//    @Environment(SpotifyClient.self) private var spotifyClient
+//    @Environment(SoundCloudClient.self) private var soundCloudClient
+//    @Environment(YouTubeClient.self) private var youTubeClient
+    
     var onClose: () -> ()
     
-    @State private var stepIndex = 1
-    @State private var previousStepIndex = 0
-    @State private var currentStep: StepInfo = Self.steps[1]
+    @State private var stepIndex = 3
+    @State private var currentStep: StepInfo = Self.steps[3]
     
     var body: some View {
         NavigationView {
@@ -101,8 +108,7 @@ struct OnboardingView: View {
                     }
                 }
         }
-        .onChange(of: stepIndex) { oldIndex, newIndex in
-            previousStepIndex = oldIndex
+        .onChange(of: stepIndex) { _, newIndex in
             currentStep = Self.steps[newIndex]
         }
     }
@@ -148,7 +154,7 @@ struct OnboardingView: View {
                 Spacer()
                 
                 if case .platformSetup = step.type {
-                    Text("Plat")
+                    platformSetupView
                     
                     Spacer()
                 }
@@ -171,7 +177,7 @@ struct OnboardingView: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .controlSize(.large)
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.glass)
                     }
                     
                     Button {
@@ -188,7 +194,7 @@ struct OnboardingView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .controlSize(.large)
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                 }
                 .padding(.horizontal)
             }
@@ -201,6 +207,65 @@ struct OnboardingView: View {
         HStack {
             
         }
+    }
+    
+    private var platformSetupView: some View {
+        List {
+            Section {
+                platformButton(.AppleMusic, authorized: false) {
+                    
+                }
+                platformButton(.Spotify, authorized: false) {
+                    
+                }
+                platformButton(.SoundCloud, authorized: false) {
+                    
+                }
+                platformButton(.YouTube, authorized: false) {
+                    
+                }
+            } footer: {
+                Text("Crossfade will ask for permissions to access the search functionality of those platforms.")
+            }
+        }
+        .scrollContentBackground(.hidden)
+    }
+    
+    private func platformButton(
+        _ platform: Platform,
+        authorized: Bool,
+        onTap: () -> ()
+    ) -> some View {
+        Button {
+             
+        } label: {
+            HStack {
+                Image(platform.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 28, maxHeight: 28)
+                
+                Text(platform.readableName)
+                
+                Spacer()
+                
+                Text("Enable")
+                    .foregroundStyle(.accent)
+//
+//                Label("Enable", systemImage: "plus")
+//                    .foregroundStyle(.accent)
+            }
+        }
+        .listRowBackground(colorScheme == .dark ? Color(UIColor.secondarySystemGroupedBackground) : .gray.opacity(0.1))
+       
+//        .background(
+//            RoundedRectangle(cornerRadius: 20)
+//                .fill(Color.systemGroupedBackground)
+//        )
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 20)
+//                .stroke(Color.systemSeparator, lineWidth: 4)
+//        )
     }
 //
 //    private var step0View: some View {
@@ -301,5 +366,9 @@ struct OnboardingView: View {
 }
 
 #Preview {
-    OnboardingView {}
+    if #available(iOS 26.0, *) {
+        OnboardingView {}
+    } else {
+        // Fallback on earlier versions
+    }
 }
