@@ -21,15 +21,14 @@ struct StepInfo: Equatable {
     
     enum StepType: Equatable {
         case intro
-        case demo(imageURL: URL)
-        case image(url: URL)
+        case demo
         case platformSetup
     }
     
     var leftButtonText: String? {
         switch self.type {
         case .demo, .platformSetup:
-            return "Back"
+            return "Previous"
         default:
             return nil
         }
@@ -39,7 +38,7 @@ struct StepInfo: Equatable {
         switch self.type {
         case .intro:
             return "Show me how"
-        case .image:
+        case .platformSetup:
             return "Enjoy"
         default:
             return "Next"
@@ -51,84 +50,98 @@ struct StepInfo: Equatable {
     }
 }
 
-@available(iOS 26.0, *)
 struct OnboardingView: View {
     private static let steps: [StepInfo] = [
         .init(
             title: AttributedString("Convert song links\nto ") + coloredString("Any") + AttributedString(" platform"),
-            description: "Crossfade allows you to convert a song link form a platform into another, perfect for sharing music with friends that use weird music platforms!",
+            description: "Crossfade allows you to convert a song link from a platform into another, perfect for sharing music with friends that use weird music platforms!",
             type: .intro
         ),
         .init(
-            title: AttributedString("Share\na ") + coloredString("Song"),
-            description: "Start by sharing a song to Crossfade.",
-            type: .demo(imageURL: URL(string: "https://www.google.com/?client=safari")!)
+            title: AttributedString("Share a ") + coloredString("Song"),
+            description: "Share a song to Crossfade to get all the platform links.",
+            type: .demo
         ),
         .init(
             title: AttributedString("Convert ") + coloredString("Links"),
             description: "Share a link to the Crossfade app to have it converted into another platform link!",
-            type: .demo(imageURL: URL(string: "https://www.google.com/?client=safari")!)
+            type: .demo
         ),
         .init(
-            title: AttributedString("Which ") + coloredString("Platforms"),
-            description: "Enable the platforms that you are interested in.",
+            title: AttributedString("Choose your ") + coloredString("Platforms"),
+            description: "Select the music platforms you want Crossfade to use.",
             type: .platformSetup
-        ),
-        .init(
-            title: coloredString("Done!"),
-            description: "You are all setup :)",
-            type: .image(url: URL(string: "https://www.google.com/?client=safari")!)
         )
     ]
     
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.openURL) var openURL
     
-    //    @Environment(AppleMusicClient.self) private var appleMusicClient
-    //    @Environment(SpotifyClient.self) private var spotifyClient
-    //    @Environment(SoundCloudClient.self) private var soundCloudClient
-    //    @Environment(YouTubeClient.self) private var youTubeClient
+    @Environment(AppleMusicClient.self) private var appleMusicClient
+    @Environment(SpotifyClient.self) private var spotifyClient
+    @Environment(SoundCloudClient.self) private var soundCloudClient
+    @Environment(YouTubeClient.self) private var youTubeClient
     
     var onClose: () -> ()
     
-    @State private var stepIndex = 1
-    @State private var currentStep: StepInfo = Self.steps[1]
+    @State private var stepIndex = 0
+    @State private var currentStep: StepInfo = Self.steps[0]
+    
     @State private var player: AVPlayer = AVPlayer()
     @State private var observer: NSObjectProtocol?
     
-    var body: some View {
-        NavigationView {
-            stepView(currentStep)
+    @State private var showAppleMusicFailedAuthAlert = false
+    
+    private func enablePlatform(client: any Client) async {
+        let result = await client.requestAuthorization()
+        
+        switch result {
+        case .completed(let success):
+            if !success && client.platform == .AppleMusic {
+                showAppleMusicFailedAuthAlert = true
+            }
+        case .shouldOpenURL(let url):
+            openURL(url)
         }
-        .onChange(of: stepIndex) { _, newIndex in
-            do {
+    }
+    
+    var body: some View {
+        stepView(currentStep)
+            .background(Color.systemBackground)
+            .appleMusicAuthAlert(isPresented: $showAppleMusicFailedAuthAlert)
+            .onChange(of: stepIndex) { _, newIndex in
                 if newIndex == 1 {
                     player.replaceCurrentItem(with: AVPlayerItem(url: Bundle.main.url(forResource: "video", withExtension: "mp4")!))
                     player.seek(to: .zero)
                 } else if newIndex == 2 {
-                    player.replaceCurrentItem(with: AVPlayerItem(url: Bundle.main.url(forResource: "video", withExtension: "mp4")!))
+                    player.replaceCurrentItem(with: AVPlayerItem(url: Bundle.main.url(forResource: "video_2", withExtension: "mp4")!))
                     player.seek(to: .zero)
                 }
-            } catch {
-                
+                currentStep = Self.steps[newIndex]
             }
-            currentStep = Self.steps[newIndex]
-        }
-        .onAppear {
-            observer = NotificationCenter.default.addObserver(
-                forName: .AVPlayerItemDidPlayToEndTime,
-                object: nil,
-                queue: .main
-            ) { _ in
-                player.seek(to: .zero)
-                player.play()
+            .onAppear {
+                observer = NotificationCenter.default.addObserver(
+                    forName: .AVPlayerItemDidPlayToEndTime,
+                    object: nil,
+                    queue: .main
+                ) { _ in
+                    player.seek(to: .zero)
+                    player.play()
+                }
             }
-        }
-        .onDisappear {
-            if let observer = observer {
-                NotificationCenter.default.removeObserver(observer)
-                self.observer = nil
+            .onDisappear {
+                if let observer = observer {
+                    NotificationCenter.default.removeObserver(observer)
+                    self.observer = nil
+                }
             }
-        }
+            .sensoryFeedback(trigger: stepIndex) { oldValue, newValue in
+                if newValue > oldValue {
+                    SensoryFeedback.increase
+                } else {
+                    SensoryFeedback.decrease
+                }
+            }
     }
     
     private func stepView(_ step: StepInfo) -> some View {
@@ -136,8 +149,8 @@ struct OnboardingView: View {
             if step.type == .intro {
                 ConcentricCirclesView()
                     .transition(.identity)
-            } else if case let .demo(imageURL) = step.type {
-                demoImageView(imageURL)
+            } else if step.type == .demo {
+                demoView
             }
             
             VStack {
@@ -160,26 +173,22 @@ struct OnboardingView: View {
                         .foregroundStyle(stepIndex == 1 || stepIndex == 2 ? .white : .systemLabel)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
+                        .padding(stepIndex == 3 ? .top : Edge.Set())
                         .transition(.scale.combined(with: .opacity))
                         .id(step.title)
                     Text(step.description)
-                        .foregroundStyle(stepIndex == 1 || stepIndex == 2 ? .white : .systemLabel)
+                        .foregroundStyle(stepIndex == 1 || stepIndex == 2 ? .white : .systemLabelSecondary)
                         .multilineTextAlignment(.center)
+                        .padding(.top, stepIndex == 0 ? nil : 2)
                         .transition(.opacity)
-                        .padding()
                         .id(step.description)
                 }
+                .padding(.horizontal)
                 
                 Spacer()
                 
                 if case .platformSetup = step.type {
                     platformSetupView
-                    
-                    Spacer()
-                }
-                
-                if case .image(url: let url) = step.type {
-                    Text("Image")
                     
                     Spacer()
                 }
@@ -197,7 +206,8 @@ struct OnboardingView: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .controlSize(.large)
-                        .buttonStyle(.glass)
+                        .buttonStyle(.bordered)
+                        //                        .buttonStyle(.glass)
                     }
                     
                     Button {
@@ -214,7 +224,8 @@ struct OnboardingView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .controlSize(.large)
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.borderedProminent)
+                    //                    .buttonStyle(.glassProminent)
                 }
                 .padding(.horizontal)
             }
@@ -222,7 +233,7 @@ struct OnboardingView: View {
         .animation(.snappy, value: currentStep)
     }
     
-    private func demoImageView(_ url: URL) -> some View {
+    private var demoView: some View {
         VideoPlayer(player: player)
             .ignoresSafeArea()
             .disabled(true) // Prevents user interaction with video controls
@@ -235,17 +246,25 @@ struct OnboardingView: View {
     private var platformSetupView: some View {
         List {
             Section {
-                platformButton(.AppleMusic, authorized: false) {
-                    
+                platformButton(.AppleMusic, authorized: appleMusicClient.isAuthorized) {
+                    Task {
+                        await enablePlatform(client: appleMusicClient)
+                    }
                 }
-                platformButton(.Spotify, authorized: false) {
-                    
+                platformButton(.Spotify, authorized: spotifyClient.isAuthorized) {
+                    Task {
+                        await enablePlatform(client: spotifyClient)
+                    }
                 }
-                platformButton(.SoundCloud, authorized: false) {
-                    
+                platformButton(.SoundCloud, authorized: soundCloudClient.isAuthorized) {
+                    Task {
+                        await enablePlatform(client: soundCloudClient)
+                    }
                 }
-                platformButton(.YouTube, authorized: false) {
-                    
+                platformButton(.YouTube, authorized: youTubeClient.isAuthorized) {
+                    Task {
+                        await enablePlatform(client: youTubeClient)
+                    }
                 }
             } footer: {
                 Text("Crossfade will ask for permissions to access the search functionality of those platforms.")
@@ -257,10 +276,10 @@ struct OnboardingView: View {
     private func platformButton(
         _ platform: Platform,
         authorized: Bool,
-        onTap: () -> ()
+        onTap: @escaping () -> ()
     ) -> some View {
         Button {
-            
+            onTap()
         } label: {
             HStack {
                 Image(platform.imageName)
@@ -269,23 +288,19 @@ struct OnboardingView: View {
                     .frame(maxWidth: 28, maxHeight: 28)
                 
                 Text(platform.readableName)
+                    .foregroundStyle(Color.systemLabel)
                 
                 Spacer()
                 
-                Text("Enable")
-                    .foregroundStyle(.accent)
+                Text(authorized ? "Enabled" : "Enable")
+                    .foregroundStyle(authorized ? .green : .accent)
             }
-            .listRowBackground(colorScheme == .dark ? Color(UIColor.secondarySystemGroupedBackground) : .gray.opacity(0.1))
         }
-        
+        .listRowBackground(colorScheme == .dark ? Color(UIColor.secondarySystemGroupedBackground) : .gray.opacity(0.1))
     }
 }
 
 
 #Preview {
-    if #available(iOS 26.0, *) {
-        OnboardingView {}
-    } else {
-        // Fallback on earlier versions
-    }
+    OnboardingView {}
 }

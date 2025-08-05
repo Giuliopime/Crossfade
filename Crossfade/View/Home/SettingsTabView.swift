@@ -53,6 +53,8 @@ struct SettingsTabView: View {
     
     @AppStorage(AppStorageKeys.refinedMatching) var refinedMatching = false
     
+    @AppStorage(AppStorageKeys.onboardingShowed) private var onboardingShowed: Bool = false
+    
     private func enablePlatform(client: any Client) async {
         let result = await client.requestAuthorization()
         
@@ -82,38 +84,20 @@ struct SettingsTabView: View {
         NavigationView {
             settingsView
                 .navigationTitle("Settings")
-                .alert(
-                    "Failed enabling Apple Music",
-                    isPresented: $showAppleMusicFailedAuthAlert) {
-                        if appleMusicClient.authStatus == .denied {
-                            Button("Open App Settings") {
-                                Task {
-                                    await openAppSettings()
-                                }
-                            }
-                        } else if appleMusicClient.authStatus == .notDetermined {
-                            Button("Try again") {
-                                Task {
-                                    await enablePlatform(client: appleMusicClient)
-                                }
-                            }
-                        }
-                        
-                        Button("Close", role: .cancel) {}
-                    } message: {
-                        switch appleMusicClient.authStatus {
-                        case .notDetermined:
-                            Text("You didn't allow or deny access to Apple Music yet, please try again.")
-                        case .denied:
-                            Text("You denied access to Apple Music, enable it in app settings in order to be able to analyze Apple Music links.")
-                        case .restricted:
-                            Text("Your device is restricted from accessing Apple Music.")
-                        case .authorized:
-                            Text("Apple Music is enabled, you can analyze Apple Music links now.")
-                        @unknown default:
-                            Text("This should not be happening, please contact the developer and notify him about this weird dialog!")
-                        }
+                .appleMusicAuthAlert(isPresented: $showAppleMusicFailedAuthAlert)
+                .fullScreenCover(
+                    isPresented: Binding(
+                        get: {
+                            !onboardingShowed
+                        },
+                        set: { _ in
+                            onboardingShowed = true
+                        })
+                ) {
+                    OnboardingView {
+                        onboardingShowed = true
                     }
+                }
         }
     }
     
@@ -258,6 +242,19 @@ struct SettingsTabView: View {
     
     private var supportAndFeedbackSection: some View {
         Section {
+            Button {
+                onboardingShowed = false
+            } label: {
+                Label(title: {
+                    Text("Show Guide")
+                        .foregroundStyle(Color.primary)
+                }, icon: {
+                    Image(systemName: "book.closed.fill")
+                        .foregroundStyle(Color.white)
+                })
+                .labelStyle(ColorfulIconLabelStyle(color: Color.pink))
+            }
+            
             Link(destination: URL(string: "https://crossfade.giuliopime.dev/contact")!) {
                 HStack {
                     Label(title: {
@@ -312,7 +309,7 @@ struct SettingsTabView: View {
                         .foregroundStyle(.gray)
                 }
             }
-
+            
             Link(destination: URL(string: "https://crossfade.giuliopime.dev/privacy")!) {
                 HStack {
                     Label(title: {
@@ -330,7 +327,7 @@ struct SettingsTabView: View {
                         .foregroundStyle(.gray)
                 }
             }
-
+            
             Link(destination: URL(string: "https://crossfade.giuliopime.dev/terms")!) {
                 HStack {
                     Label(title: {

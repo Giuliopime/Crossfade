@@ -24,7 +24,7 @@ struct TrackAnalysisView: View {
     let loadedPlatformAvailability: Bool
     
     @State private var showCopiedToast: Bool = false
-
+    
     var body: some View {
         VStack {
             List {
@@ -101,7 +101,9 @@ struct TrackAnalysisView: View {
                 }
             }
         }
-        .sensoryFeedback(.success, trigger: showCopiedToast)
+        .sensoryFeedback(trigger: showCopiedToast, { _, newValue in
+            return newValue ? SensoryFeedback.success : nil
+        })
     }
     
     private var trackInfoView: some View {
@@ -149,9 +151,6 @@ struct TrackAnalysisView: View {
             if let url = url {
                 Button("Copy", systemImage: "document.on.document") {
                     copyToClipboard(url)
-                    withAnimation {
-                        showCopiedToast = true
-                    }
                 }
                 .labelStyle(.iconOnly)
                 .buttonStyle(.borderless)
@@ -179,7 +178,15 @@ struct TrackAnalysisView: View {
     
     private func copyToClipboard(_ url: URL) {
         UIPasteboard.general.string = url.absoluteString
-        // Could add haptic feedback here
+        withAnimation {
+            showCopiedToast = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {   
+            withAnimation {
+                showCopiedToast = false
+            }
+        }
     }
 }
 

@@ -14,11 +14,19 @@ struct ContentView: View {
     
     var body: some View {
         tabView
-//            .fullScreenCover(isPresented: $onboardingShowed) {
-//                OnboardingView {
-//                    onboardingShowed = true
-//                }
-//            }
+            .fullScreenCover(
+                isPresented: Binding(
+                    get: {
+                        !onboardingShowed
+                    },
+                    set: { _ in
+                        onboardingShowed = true
+                    })
+            ) {
+                OnboardingView {
+                    onboardingShowed = true
+                }
+            }
     }
     
     private var tabView: some View {
@@ -54,4 +62,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environment(NavigationManager())
 }
