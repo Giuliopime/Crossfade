@@ -23,6 +23,8 @@ struct TrackAnalysisView: View {
     let trackAnalysis: TrackAnalysis
     let loadedPlatformAvailability: Bool
     
+    @State private var showCopiedToast: Bool = false
+
     var body: some View {
         VStack {
             List {
@@ -75,6 +77,31 @@ struct TrackAnalysisView: View {
                 }
             }
         }
+        .overlay {
+            VStack {
+                Spacer()
+                
+                if showCopiedToast {
+                    Button {
+                        withAnimation {
+                            showCopiedToast = false
+                        }
+                    } label: {
+                        Label("Link Copied", systemImage: "document.on.document")
+                            .fontWeight(.semibold)
+                            .padding()
+                            .background {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.ultraThinMaterial)
+                            }
+                        
+                    }
+                    .buttonStyle(.plain)
+                    .transition(.opacity.animation(.snappy))
+                }
+            }
+        }
+        .sensoryFeedback(.success, trigger: showCopiedToast)
     }
     
     private var trackInfoView: some View {
@@ -122,6 +149,9 @@ struct TrackAnalysisView: View {
             if let url = url {
                 Button("Copy", systemImage: "document.on.document") {
                     copyToClipboard(url)
+                    withAnimation {
+                        showCopiedToast = true
+                    }
                 }
                 .labelStyle(.iconOnly)
                 .buttonStyle(.borderless)
@@ -159,11 +189,15 @@ struct TrackAnalysisView: View {
             trackAnalysis: TrackAnalysis.mock(
                 title: "Cydonia (2021 Remaster)",
                 artistName: "Eat Static",
-                albumTitle: "Implant (2021 Expanded & Remastered Edition)"
+                albumTitle: "Implant (2021 Expanded & Remastered Edition)",
             ),
             loadedPlatformAvailability: true
         )
         .navigationTitle("Crossfade")
         .navigationBarTitleDisplayMode(.inline)
+        .environment(AppleMusicClient())
+        .environment(SpotifyClient())
+        .environment(SoundCloudClient())
+        .environment(YouTubeClient())
     }
 }

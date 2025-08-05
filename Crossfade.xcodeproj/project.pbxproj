@@ -78,6 +78,8 @@
 				View/TrackAnalysisView.swift,
 				View/Util/ColorExtension.swift,
 				View/Util/ShareSheet.swift,
+				View/Util/VideoPlayerView.swift,
+				View/video.mp4,
 			);
 			target = 09620C4E2DFE01D30073AA3B /* CrossfadeShareExtension */;
 		};

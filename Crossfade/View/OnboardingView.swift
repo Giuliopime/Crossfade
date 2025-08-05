@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVKit
 
 fileprivate func coloredString(_ s: String) -> AttributedString {
     var attributed = AttributedString(s)
@@ -82,34 +83,51 @@ struct OnboardingView: View {
     
     @Environment(\.colorScheme) var colorScheme
     
-//    @Environment(AppleMusicClient.self) private var appleMusicClient
-//    @Environment(SpotifyClient.self) private var spotifyClient
-//    @Environment(SoundCloudClient.self) private var soundCloudClient
-//    @Environment(YouTubeClient.self) private var youTubeClient
+    //    @Environment(AppleMusicClient.self) private var appleMusicClient
+    //    @Environment(SpotifyClient.self) private var spotifyClient
+    //    @Environment(SoundCloudClient.self) private var soundCloudClient
+    //    @Environment(YouTubeClient.self) private var youTubeClient
     
     var onClose: () -> ()
     
-    @State private var stepIndex = 3
-    @State private var currentStep: StepInfo = Self.steps[3]
+    @State private var stepIndex = 1
+    @State private var currentStep: StepInfo = Self.steps[1]
+    @State private var player: AVPlayer = AVPlayer()
+    @State private var observer: NSObjectProtocol?
     
     var body: some View {
         NavigationView {
             stepView(currentStep)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button {
-                            onClose()
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.gray)
-                        }
-                    }
-                }
         }
         .onChange(of: stepIndex) { _, newIndex in
+            do {
+                if newIndex == 1 {
+                    player.replaceCurrentItem(with: AVPlayerItem(url: Bundle.main.url(forResource: "video", withExtension: "mp4")!))
+                    player.seek(to: .zero)
+                } else if newIndex == 2 {
+                    player.replaceCurrentItem(with: AVPlayerItem(url: Bundle.main.url(forResource: "video", withExtension: "mp4")!))
+                    player.seek(to: .zero)
+                }
+            } catch {
+                
+            }
             currentStep = Self.steps[newIndex]
+        }
+        .onAppear {
+            observer = NotificationCenter.default.addObserver(
+                forName: .AVPlayerItemDidPlayToEndTime,
+                object: nil,
+                queue: .main
+            ) { _ in
+                player.seek(to: .zero)
+                player.play()
+            }
+        }
+        .onDisappear {
+            if let observer = observer {
+                NotificationCenter.default.removeObserver(observer)
+                self.observer = nil
+            }
         }
     }
     
@@ -139,12 +157,13 @@ struct OnboardingView: View {
                     
                     Text(step.title)
                         .font(.title)
+                        .foregroundStyle(stepIndex == 1 || stepIndex == 2 ? .white : .systemLabel)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
                         .transition(.scale.combined(with: .opacity))
                         .id(step.title)
                     Text(step.description)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(stepIndex == 1 || stepIndex == 2 ? .white : .systemLabel)
                         .multilineTextAlignment(.center)
                         .transition(.opacity)
                         .padding()
@@ -170,6 +189,7 @@ struct OnboardingView: View {
                         Button {
                             withAnimation {
                                 stepIndex -= 1
+                                
                             }
                         } label: {
                             Text(leftButtonText)
@@ -203,10 +223,13 @@ struct OnboardingView: View {
     }
     
     private func demoImageView(_ url: URL) -> some View {
-        // TODO
-        HStack {
-            
-        }
+        VideoPlayer(player: player)
+            .ignoresSafeArea()
+            .disabled(true) // Prevents user interaction with video controls
+            .onAppear {
+                player.isMuted = true
+                player.play()
+            }
     }
     
     private var platformSetupView: some View {
@@ -237,7 +260,7 @@ struct OnboardingView: View {
         onTap: () -> ()
     ) -> some View {
         Button {
-             
+            
         } label: {
             HStack {
                 Image(platform.imageName)
@@ -251,119 +274,13 @@ struct OnboardingView: View {
                 
                 Text("Enable")
                     .foregroundStyle(.accent)
-//
-//                Label("Enable", systemImage: "plus")
-//                    .foregroundStyle(.accent)
             }
+            .listRowBackground(colorScheme == .dark ? Color(UIColor.secondarySystemGroupedBackground) : .gray.opacity(0.1))
         }
-        .listRowBackground(colorScheme == .dark ? Color(UIColor.secondarySystemGroupedBackground) : .gray.opacity(0.1))
-       
-//        .background(
-//            RoundedRectangle(cornerRadius: 20)
-//                .fill(Color.systemGroupedBackground)
-//        )
-//        .overlay(
-//            RoundedRectangle(cornerRadius: 20)
-//                .stroke(Color.systemSeparator, lineWidth: 4)
-//        )
+        
     }
-//
-//    private var step0View: some View {
-//        ZStack {
-//            ConcentricCirclesView()
-//            
-//            VStack {
-//                if centered {
-//                    Spacer()
-//                }
-//                
-//                VStack {
-//                    VStack(spacing: 4) {
-//                        Image(uiImage: UIApplication.shared.alternateIconName == nil ? UIImage(named: "AppIcon60x60") ?? UIImage() : UIImage(named: UIApplication.shared.alternateIconName!) ?? UIImage())
-//                            .resizable()
-//                            .frame(width: 64, height: 64)
-//                            .cornerRadius(16)
-//                        
-//                        //                Label("Convert Song Links", systemImage: "repeat") // alternative image: arrow.trianglehead.2.clockwise.rotate.90
-//                        //                    .padding(.trailing, 100)
-//                        HStack {
-//                            //                    Image(systemName: "repeat")
-//                            Text("Convert song links")
-//                            //                    Image(systemName: "link")
-//                        }
-//                        
-//                        Text("to ") +
-//                        Text("Any").foregroundStyle(.accent) +
-//                        Text(" platform")
-//                    }
-//                    .font(.title)
-//                    .fontWeight(.bold)
-//                    
-//                    Text("Crossfade allows you to convert a song link from a platform into another, perfect for sharing music with friends that use weird music platforms!")
-//                        .multilineTextAlignment(.center)
-//                        .foregroundStyle(.secondary)
-//                        .padding()
-//                }
-//                .padding(.top, 64)
-//                
-//                Spacer()
-//                
-//                Button {
-//                    currentStep += 1
-//                } label: {
-//                    Text("Show me how")
-//                        .fontWeight(.semibold)
-//                        .frame(maxWidth: .infinity)
-//                }
-//                .controlSize(.large)
-//                .buttonStyle(.borderedProminent)
-//            }
-//        }
-//        .padding(.horizontal)
-//    }
-//    
-//    private var step1View: some View {
-//        VStack {
-//            VStack {
-//                VStack(spacing: 4) {
-//                    Text("Start by")
-//                    
-//                    Text("sharing a ") +
-//                    Text("Song").foregroundStyle(.accent)
-//                }
-//                .font(.title)
-//                .fontWeight(.bold)
-//                
-//                Text("Share a song to Crossfade from your desired platform to get a link of the song for other platforms!")
-//                    .multilineTextAlignment(.center)
-//                    .foregroundStyle(.secondary)
-//                    .padding()
-//            }
-//            .padding(.top, 64)
-//            
-//            Spacer()
-//            
-//        
-//            // TODO: Video of sharing from Spotify
-//            
-//            Spacer()
-//            
-//        }
-//        .padding(.horizontal)
-//    }
-//    
-//    private var step2View: some View {
-//        Text("")
-//    }
-//    
-//    private var step3View: some View {
-//        Text("")
-//    }
-//    
-//    private var step4View: some View {
-//        Text("")
-//    }
 }
+
 
 #Preview {
     if #available(iOS 26.0, *) {
