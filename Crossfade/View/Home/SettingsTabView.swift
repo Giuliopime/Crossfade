@@ -85,19 +85,6 @@ struct SettingsTabView: View {
             settingsView
                 .navigationTitle("Settings")
                 .appleMusicAuthAlert(isPresented: $showAppleMusicFailedAuthAlert)
-                .fullScreenCover(
-                    isPresented: Binding(
-                        get: {
-                            !onboardingShowed
-                        },
-                        set: { _ in
-                            onboardingShowed = true
-                        })
-                ) {
-                    OnboardingView {
-                        onboardingShowed = true
-                    }
-                }
         }
     }
     

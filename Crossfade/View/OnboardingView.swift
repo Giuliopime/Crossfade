@@ -195,37 +195,68 @@ struct OnboardingView: View {
                 
                 HStack {
                     if let leftButtonText = step.leftButtonText {
+                        if #available(iOS 26.0, *) {
+                            Button {
+                                withAnimation {
+                                    stepIndex -= 1
+                                    
+                                }
+                            } label: {
+                                Text(leftButtonText)
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .controlSize(.large)
+                            .buttonStyle(.glass)
+                        } else {
+                            Button {
+                                withAnimation {
+                                    stepIndex -= 1
+                                    
+                                }
+                            } label: {
+                                Text(leftButtonText)
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .controlSize(.large)
+                            .buttonStyle(.bordered)
+                        }
+                    }
+                    
+                    if #available(iOS 26.0, *) {
                         Button {
-                            withAnimation {
-                                stepIndex -= 1
-                                
+                            if stepIndex == Self.steps.count - 1 {
+                                onClose()
+                            } else {
+                                withAnimation {
+                                    stepIndex += 1
+                                }
                             }
                         } label: {
-                            Text(leftButtonText)
+                            Text(step.rightButtonText)
                                 .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity)
                         }
                         .controlSize(.large)
-                        .buttonStyle(.bordered)
-                        //                        .buttonStyle(.glass)
-                    }
-                    
-                    Button {
-                        if stepIndex == Self.steps.count - 1 {
-                            onClose()
-                        } else {
-                            withAnimation {
-                                stepIndex += 1
+                        .buttonStyle(.glassProminent)
+                    } else {
+                        Button {
+                            if stepIndex == Self.steps.count - 1 {
+                                onClose()
+                            } else {
+                                withAnimation {
+                                    stepIndex += 1
+                                }
                             }
+                        } label: {
+                            Text(step.rightButtonText)
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
                         }
-                    } label: {
-                        Text(step.rightButtonText)
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
+                        .controlSize(.large)
+                        .buttonStyle(.borderedProminent)
                     }
-                    .controlSize(.large)
-                    .buttonStyle(.borderedProminent)
-                    //                    .buttonStyle(.glassProminent)
                 }
                 .padding(.horizontal)
             }
@@ -236,7 +267,7 @@ struct OnboardingView: View {
     private var demoView: some View {
         VideoPlayer(player: player)
             .ignoresSafeArea()
-            .disabled(true) // Prevents user interaction with video controls
+            .disabled(true)
             .onAppear {
                 player.isMuted = true
                 player.play()
