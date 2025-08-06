@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work in Progress</title>
+</head>
+<body>
+    <div id="homepage" class="page">
+        <center>
+            <h1>work in progress</h1>
+            <p>
+                <a href="#" onclick="showPage('privacy')">Privacy Policy</a><br><br>
+                <a href="#" onclick="showPage('terms')">Terms of Use</a>
+            </p>
+        </center>
+    </div>
+
+    <div id="privacy" class="page" style="display: none;">
+        <h1>Privacy Policy</h1>
+        <p>Privacy policy content TBD</p>
+        <p><a href="#" onclick="showPage('homepage')">← Back to Home</a></p>
+    </div>
+
+    <div id="terms" class="page" style="display: none;">
+        <h1>Terms of Use</h1>
+        <p>Terms of use content TBD</p>
+        <p><a href="#" onclick="showPage('homepage')">← Back to Home</a></p>
+    </div>
+
+    <div id="contact" class="page" style="display: none;">
+        <h1>Contact</h1>
+        <p>Opening email client...</p>
+        <p><a href="#" onclick="showPage('homepage')">← Back to Home</a></p>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.style.display = 'none');
+            
+            // Show selected page
+            document.getElementById(pageId).style.display = 'block';
+            
+            // Handle contact page email
+            if (pageId === 'contact') {
+                window.location.href = 'mailto:giuliopime@gmail.com?subject=Crossfade feedback';
+            }
+        }
+        
+        // Add contact link to homepage
+        document.addEventListener('DOMContentLoaded', function() {
+            const homepage = document.getElementById('homepage');
+            const contactLink = document.createElement('a');
+            contactLink.href = '#';
+            contactLink.onclick = function() { showPage('contact'); };
+            contactLink.textContent = 'Contact';
+            
+            const paragraph = homepage.querySelector('p');
+            paragraph.appendChild(document.createElement('br'));
+            paragraph.appendChild(document.createElement('br'));
+            paragraph.appendChild(contactLink);
+        });
+    </script>
+</body>
+</html>
