@@ -10,6 +10,8 @@ import SwiftData
 
 struct HistoryTabView: View {
     @Environment(\.modelContext) private var context
+    @AppStorage(AppStorageKeys.onboardingShowed) private var onboardingShowed: Bool = false
+    
     @Query(
         sort: [
             SortDescriptor(\TrackAnalysis.dateAnalyzed, order: .reverse),
@@ -40,7 +42,7 @@ struct HistoryTabView: View {
                                 Text("Use Crossfade to convert music links from a platform to another!")
                             } actions: {
                                 Button("Show me how") {
-                                    // TODO: Launch onboarding
+                                    onboardingShowed = false
                                 }
                                 .buttonStyle(.borderedProminent)
                             }
