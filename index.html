@@ -1,18 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="flex justify-center w-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Work in Progress</title>
+    <title>Crossfade</title>
+    <link rel="icon" type="image/x-icon" href="website/assets/favicon.ico" />
+
+    <link rel="stylesheet" href="website/output.css" />
+
+    <!-- for the ID: https://toolbox.marketingtools.apple.com/en-us/app-store/us?q=Crossfade   -->
+    <meta name="apple-itunes-app" content="app-id=myAppStoreID">
 </head>
-<body>
-    <center>
-        <h1>work in progress</h1>
-        <p>
-            <a href="privacy.html">Privacy Policy</a><br><br>
-            <a href="terms.html">Terms of Use</a><br><br>
-            <a href="contact.html">Contact</a>
-        </p>
-    </center>
+<body class="w-full sm:w-3/4 px-4 sm:px-0 flex flex-col items-center">
+<header class="absolute w-full sm:w-3/4 flex justify-between items-center px-8 py-4">
+    <a href="https://crossfade.giuliopime.dev" class="flex items-center space-x-2">
+        <img src="website/assets/logo_liquid.png" alt="Crossfade Logo" class="h-10 w-10">
+        <span class="font-bold">Crossfade</span>
+    </a>
+
+    <div class="flex items-center space-x-16 font-medium">
+        <a href="{APPLINK}" class="hover:text-accent hidden sm:inline">Download</a>
+        <a href="http://github.com/Giuliopime/Crossfade" class="hover:text-accent hidden sm:inline">Contribute</a>
+        <a href="mailto:giuliopime@gmail.com?subject=Crossfade: " class="hover:text-accent">Contact</a>
+    </div>
+</header>
+
+
+<div class="flex flex-col sm:flex-row justify-center items-center space-y-12 sm:space-x-16 sm:min-h-full mt-24 sm:mt-0">
+    <div class="flex flex-col space-y-4 items-center sm:items-start">
+        <span class="text-4xl font-bold text-center sm:text-start">Convert song links to <span class="text-[#FF5F25]">Any</span> platform</span>
+        <span class="text-sm text-center sm:text-start">
+            Crossfade allows you to convert a song link from a platform into another, perfect for sharing music with friends that use weird music platforms!
+        </span>
+
+        <div class="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4">
+            <a href="" class="hover:opacity-75 hover:scale-110 transition-all">
+                <img src="website/assets/download_on_the_app_store.svg" alt="Download">
+            </a>
+            <a href="https://github.com/Giuliopime/Crossfade" target="_blank" class="flex items-center justify-center space-x-1 w-[119.66px] h-[40px] text-black bg-gray-50 border border-gray-200 rounded-md hover:opacity-75 hover:scale-110 transition-all">
+                <img src="website/assets/github.svg" alt="Contribute on GitHub" class="w-6">
+                <div class="flex flex-col leading-none">
+                    <span class="text-[0.625rem] font-light">Contribute on</span>
+                    <span class="font-medium">GitHub</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <video autoplay muted loop class="w-48">
+        <source src="website/assets/device_mock_link_share.mp4" type="video/mp4">
+    </video>
+</div>
+
+<div class="flex flex-col-reverse sm:flex-row justify-center space-y-reverse space-y-8 sm:space-y-0 sm:space-x-8 items-center mt-24 sm:mt-16">
+    <video autoplay muted loop class="w-48">
+        <source src="website/assets/device_mock_spotify_share.mp4" type="video/mp4">
+    </video>
+
+    <div class="flex flex-col text-center sm:text-start">
+        <span class="text-2xl font-bold">Share a song</span>
+        <span class="max-w-64">Share a song to Crossfade directly from any app to get all the platform links.</span>
+    </div>
+</div>
+
+<div class="flex flex-col sm:flex-row justify-center items-center space-y-8 sm:space-y-0 sm:space-x-8 mt-24 sm:mt-16">
+    <div class="flex flex-col text-center sm:text-start">
+        <span class="text-2xl font-bold">Tweak it to your needs</span>
+        <span class="max-w-64">Customise the app behaviour so that it fits exactly your use case.</span>
+    </div>
+
+    <img src="website/assets/crossfade_behaviour_mock.png" class="w-48" alt="Customise behaviour" />
+</div>
+
+<div class="flex flex-col text-center space-y-4 mt-32">
+    <span class="text-2xl font-bold">What else?</span>
+    <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
+        <div class="flex flex-col items-center justify-center space-y-2 max-w-48 h-40 py-4 px-4 bg-gray-100 rounded-lg">
+            <img src="website/assets/icons/code.svg" alt="Code" class="w-6 font-bold" />
+            <span class="font-semibold text-sm">Open Source</span>
+            <span class="text-xs">All the app code is available on <a href="https://github.com/Giuliopime/Crossfade" class="hover:text-accent hover:fill-accent">GitHub </a> and you can contribute to it.</span>
+        </div>
+
+        <div class="flex flex-col items-center justify-center space-y-2 max-w-48 h-40 py-4 px-4 bg-gray-100 rounded-lg">
+            <img src="website/assets/icons/privacy.svg" alt="Code" class="w-6 font-bold" />
+            <span class="font-semibold text-sm">Private</span>
+            <span class="text-xs">The app doesn't store any data. Nothing escapes your device!</span>
+        </div>
+
+        <div class="flex flex-col items-center justify-center space-y-2 max-w-48 h-40 py-4 px-4 bg-gray-100 rounded-lg">
+            <img src="website/assets/logos/apple.svg" alt="Code" class="w-6 font-bold" />
+            <span class="font-semibold text-sm">Native</span>
+            <span class="text-xs">Built and tailored for Apple devices to ensure the best user experience.</span>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-col w-full items-center mt-32 space-y-1">
+    <img src="website/assets/logo_liquid.png" alt="Crossfade Logo" class="h-20 w-20" />
+    <span class="text-4xl font-bold">Crossfade</span>
+    <span class="text-center text-sm text-gray-500 max-w-128">Fade between platforms</span>
+
+    <div class="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-2 sm:mt-6">
+        <a href="" class="hover:opacity-75 hover:scale-110 transition-all">
+            <img src="website/assets/download_on_the_app_store.svg" alt="Download">
+        </a>
+        <a href="https://github.com/Giuliopime/Crossfade" target="_blank" class="flex items-center justify-center space-x-1 w-[119.66px] h-[40px] text-black bg-gray-50 border border-gray-200 rounded-md hover:opacity-75 hover:scale-110 transition-all">
+            <img src="website/assets/github.svg" alt="Contribute on GitHub" class="w-6">
+            <div class="flex flex-col leading-none">
+                <span class="text-[0.625rem] font-light">Contribute on</span>
+                <span class="font-medium">GitHub</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="flex flex-col md:flex-row w-full md:w-2/3 md:mx-16 justify-between mt-32 bg-gray-200 px-6 pt-8 pb-7 text-[0.7rem] text-gray-600 rounded-t-xl">
+    <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 font-medium text-center md:text-start">
+        <a href="/privacy.html" class="hover:text-accent">Privacy Policy</a>
+        <a href="/terms.html" class="hover:text-accent">Terms of Use</a>
+        <a href="mailto:giuliopime@gmail.com?subject=Crossfade: " class="hover:text-accent">Contact</a>
+    </div>
+
+    <span class="text-center md:text-start mt-8 md:mt-0">Crafted by <a href="https://giuliopime.dev" class="hover:text-accent">Giulio Pimenoff</a> </span>
+</div>
+
 </body>
 </html>

@@ -9,3 +9,5 @@
 
 ### improvements
 - [ ] AI track information 
+
+using standalone tailwind cli useful thread: https://github.com/tailwindlabs/tailwindcss/discussions/15855#discussion-7869567
