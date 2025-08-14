@@ -34,7 +34,7 @@ struct TokenInfo: Codable {
 
 // MARK: - Token Manager
 class TokenManager {
-    private let keychain = Keychain(service: "com.app.soundcloud")
+    private let keychain = Keychain(service: Identifiers.keychain_sharing_service, accessGroup: Identifiers.keychain_group)
     private let tokenKey = "soundcloud_token"
     
     func saveToken(_ tokenInfo: TokenInfo) {

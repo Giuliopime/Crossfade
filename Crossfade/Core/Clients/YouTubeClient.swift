@@ -35,7 +35,7 @@ struct YouTubeTokenInfo: Codable {
 
 // MARK: - Token Manager
 class YouTubeTokenManager {
-    private let keychain = Keychain(service: "com.app.youtube")
+    private let keychain = Keychain(service: Identifiers.keychain_sharing_service, accessGroup: Identifiers.keychain_group)
     private let tokenKey = "youtube_token"
     
     func saveToken(_ tokenInfo: YouTubeTokenInfo) {

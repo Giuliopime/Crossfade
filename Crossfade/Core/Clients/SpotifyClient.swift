@@ -10,7 +10,6 @@ import Combine
 import OSLog
 import CryptoKit
 import SpotifyWebAPI
-import UIKit
 import KeychainAccess
 
 fileprivate let log = Logger(subsystem: "App", category: "SpotifyClient")
