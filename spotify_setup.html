@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" class="flex justify-center w-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spotify Setup - Crossfade</title>
+  <link rel="icon" type="image/x-icon" href="website/assets/favicon.ico" />
+
+  <link rel="stylesheet" href="website/output.css" />
+</head>
+<body class="w-full sm:w-3/4 px-4 sm:px-0 flex flex-col items-center">
+<header class="absolute w-full sm:w-3/4 flex justify-between items-center px-4 py-2">
+  <a href="https://crossfade.giuliopime.dev" class="flex items-center space-x-1">
+    <img src="website/assets/logos/logo_liquid.png" alt="Crossfade Logo" class="h-10 w-10">
+    <span class="font-bold">Crossfade</span>
+  </a>
+
+  <div class="flex items-center space-x-6 text-xs font-medium">
+    <a href="https://apps.apple.com/us/app/crossfade-convert-music-link/id6749610876" class="hover:text-accent hidden sm:inline">Download</a>
+    <a href="http://github.com/Giuliopime/Crossfade" class="hover:text-accent hidden sm:inline">Contribute</a>
+    <a href="mailto:giuliopime@gmail.com?subject=Crossfade: " class="hover:text-accent">Contact</a>
+  </div>
+</header>
+
+<div class="prose py-32">
+  <h1>Spotify Setup</h1>
+
+  <ol>
+    <li>Login into <a href="https://developer.spotify.com/dashboard" target="_blank">Spotify API Dashboard</a> (<i>Open the hamburger menu on the top right and click 'Log in'</i>)</li>
+    <li>Open the <a href="https://developer.spotify.com/dashboard" target="_blank">Dashboard</a> if you didn't already</li>
+    <li>Click <b>Create App</b></li>
+    <li>In the 'App name' and 'App description' fields you can put whatever you want</li>
+    <li>In <b>Redirect URIs</b> put <i>crossfade://spotify-auth-callback</i></li>
+    <li>Check the ✅ <b>Web API</b> checkbox under 'Which API/SDKs are you planning to use?'</li>
+    <li>Accept the developer terms</li>
+    <li>Click <b>Save</b></li>
+  </ol>
+
+  <p>You can now <b>copy the client ID</b> that pops up after you hit <i>Save</i> and paste it inside Crossfade Spotify settings!</p>
+
+  <h4>Why is this needed?</h4>
+  <p>Unfortunately Spotify has some new insane API requirements, you can either have either max 25 users or a minimum of 250k per month, there is no in between, this means if I were to setup a client for Spotify the app would only be usable by 25 users.<br>
+    Reference: <a href="https://developer.spotify.com/documentation/web-api/concepts/quota-modes" target="_blank">https://developer.spotify.com/documentation/web-api/concepts/quota-modes</a></p>
+</div>
+</body>
+</html>
