@@ -51,6 +51,8 @@ struct SettingsTabView: View {
     @AppStorage(AppStorageKeys.soundCloudBehaviour) var soundCloudBehaviour: PlatformBehaviour = .showAnalysis
     @AppStorage(AppStorageKeys.youTubeBehaviour) var youtubeBehaviour: PlatformBehaviour = .showAnalysis
     
+    @AppStorage(AppStorageKeys.spotifyClientID) var spotifyClientID: String = ""
+    
     @AppStorage(AppStorageKeys.refinedMatching) var refinedMatching = false
     
     @AppStorage(AppStorageKeys.onboardingShowed) private var onboardingShowed: Bool = false
@@ -102,25 +104,58 @@ struct SettingsTabView: View {
     var platformsSection: some View {
         Section {
             ForEach(clients, id: \.id) { client in
-                HStack {
-                    Image(client.platform.imageName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: 28, maxHeight: 28)
-                    
-                    Toggle(client.platform.readableName, isOn: Binding {
-                        client.isAuthorized
-                    } set: { newValue in
-                        if newValue {
-                            Task {
-                                await enablePlatform(client: client)
-                            }
-                        } else {
-                            Task {
-                                await disablePlatform(client: client)
+                if client is SpotifyClient {
+                    NavigationLink {
+                        SpotifySettings(
+                            enabled: spotifyClient.isAuthorized,
+                            clientId: spotifyClientID
+                        ) { clientID in
+                            if clientID == nil {
+                                Task {
+                                    await disablePlatform(client: client)
+                                    spotifyClientID = ""
+                                    spotifyClient.initialize(clientID: clientID)
+                                }
+                            } else {
+                                spotifyClientID = clientID ?? ""
+                                spotifyClient.initialize(clientID: clientID)
+                                Task {
+                                    await enablePlatform(client: client)
+                                }
                             }
                         }
-                    })
+                    } label: {
+                        HStack {
+                            Image(client.platform.imageName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: 28, maxHeight: 28)
+                            
+                            Text(client.platform.readableName)
+                        }
+                    }
+
+                } else {
+                    HStack {
+                        Image(client.platform.imageName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: 28, maxHeight: 28)
+                        
+                        Toggle(client.platform.readableName, isOn: Binding {
+                            client.isAuthorized
+                        } set: { newValue in
+                            if newValue {
+                                Task {
+                                    await enablePlatform(client: client)
+                                }
+                            } else {
+                                Task {
+                                    await disablePlatform(client: client)
+                                }
+                            }
+                        })
+                    }
                 }
             }
         } header: {

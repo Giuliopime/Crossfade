@@ -207,7 +207,7 @@ struct OnboardingView: View {
                                     .frame(maxWidth: .infinity)
                             }
                             .controlSize(.large)
-//                            .buttonStyle(.glass)
+                            .buttonStyle(.glass)
                         } else {
                             Button {
                                 withAnimation {
@@ -239,7 +239,7 @@ struct OnboardingView: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .controlSize(.large)
-//                        .buttonStyle(.glassProminent)
+                        .buttonStyle(.glassProminent)
                     } else {
                         Button {
                             if stepIndex == Self.steps.count - 1 {

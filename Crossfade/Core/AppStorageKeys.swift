@@ -12,5 +12,7 @@ struct AppStorageKeys {
     static let soundCloudBehaviour = "sound_cloud_behaviour"
     static let youTubeBehaviour = "youtube_behaviour"
     
+    static let spotifyClientID = "spotify_client_id"
+    
     static let refinedMatching = "refined_matching"
 }

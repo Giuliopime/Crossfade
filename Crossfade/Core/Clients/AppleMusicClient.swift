@@ -28,7 +28,7 @@ class AppleMusicClient: Client {
     }
     
     // TODO: Analyze whether read in the background is needed
-    @concurrent
+    @Sendable
     private func initAuthStatus() async {
         let currentStatus = MusicAuthorization.currentStatus
         
@@ -37,7 +37,7 @@ class AppleMusicClient: Client {
         }
     }
     
-    @concurrent
+    @Sendable
     func requestAuthorization() async -> AuthorizationRequestResult {
         let newStatus = await MusicAuthorization.request()
         
@@ -53,10 +53,10 @@ class AppleMusicClient: Client {
         log.error("Cannot deauthorize programmatically, user needs to open the app settings and disable access to Apple Music.")
     }
     
-    @concurrent
+    @Sendable
     func fetchTrackInfo(url: URL) async throws -> TrackInfo {
         do {
-            guard let songID = await extractSongID(from: url) else {
+            guard let songID = extractSongID(from: url) else {
                 throw ClientError.invalidURL
             }
             
@@ -71,12 +71,12 @@ class AppleMusicClient: Client {
             }
                 
         } catch {
-            await log.error("Failed to fetch song info: \(error)")
+            log.error("Failed to fetch song info: \(error)")
             throw ClientError.unknown(error)
         }
     }
     
-    @concurrent
+    @Sendable
     func fetchTrackInfo(title: String, artistName: String, useRefinedMatching: Bool = false) async throws -> TrackInfo {
         do {
             var request = MusicCatalogSearchRequest(term: "\(artistName) \(title)", types: [Song.self])
@@ -98,7 +98,7 @@ class AppleMusicClient: Client {
                 return TrackInfo(track)
             }
         } catch {
-            await log.error("Failed to fetch song info: \(error)")
+            log.error("Failed to fetch song info: \(error)")
             throw ClientError.unknown(error)
         }
     }

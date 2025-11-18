@@ -7,6 +7,9 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
+
+fileprivate let log = Logger(subsystem: "App", category: "CrossfadeApp")
 
 @main
 struct CrossfadeApp: App {
@@ -51,6 +54,9 @@ struct CrossfadeApp: App {
                     Task {
                         await handleCustomURLScheme(url)
                     }
+                }
+                .onAppear {
+                    spotifyClient.initialize(clientID: UserDefaults(suiteName: Identifiers.app_group)!.string(forKey: AppStorageKeys.spotifyClientID))
                 }
         }
         

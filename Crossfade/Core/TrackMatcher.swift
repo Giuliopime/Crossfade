@@ -10,25 +10,25 @@ import MusicKit
 import SpotifyWebAPI
 
 struct TrackMatcher {
-    @concurrent
+    @Sendable
     static func findBestMatch(_ tracks: [MusicKit.Song], targetTitle: String, targetArtist: String) async -> MusicKit.Song? {
         let index = findBestMatchGeneric(tracks: tracks.map { ($0.title, $0.artistName)}, targetTitle: targetTitle, targetArtist: targetArtist)
         return index >= 0 ? tracks[index] : nil
     }
     
-    @concurrent
+    @Sendable
     static func findBestMatch(_ tracks: [SpotifyWebAPI.Track], targetTitle: String, targetArtist: String) async -> SpotifyWebAPI.Track? {
         let index = findBestMatchGeneric(tracks: tracks.map { ($0.name, $0.artists?.first?.name ?? "")}, targetTitle: targetTitle, targetArtist: targetArtist)
         return index >= 0 ? tracks[index] : nil
     }
     
-    @concurrent
+    @Sendable
     static func findBestMatch(_ tracks: [SoundCloudTrack], targetTitle: String, targetArtist: String) async -> SoundCloudTrack? {
         let index = findBestMatchGeneric(tracks: tracks.map { ($0.title, $0.user.username)}, targetTitle: targetTitle, targetArtist: targetArtist)
         return index >= 0 ? tracks[index] : nil
     }
     
-    @concurrent
+    @Sendable
     static func findBestMatch(_ tracks: [YouTubeVideo], targetTitle: String, targetArtist: String) async -> YouTubeVideo? {
         let index = findBestMatchGeneric(tracks: tracks.map { ($0.snippet.title, $0.snippet.channelTitle)}, targetTitle: targetTitle, targetArtist: targetArtist)
         return index >= 0 ? tracks[index] : nil

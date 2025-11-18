@@ -18,8 +18,7 @@ fileprivate let log = Logger(subsystem: "App", category: "SpotifyClient")
 class SpotifyClient: Client {
     let platform: Platform = .Spotify
     let deauthorizableInAppSettings: Bool = false
-    
-    static let CLIENT_ID = "447e30822e024cc29515039fe7c133ea"
+        
     static let REDIRECT_URI = "crossfade://spotify-auth-callback"
     
     private var codeVerifier = ""
@@ -27,9 +26,9 @@ class SpotifyClient: Client {
     private var codeChallengeState = ""
     
     private var cancellables: [AnyCancellable] = []
-    private let spotify = SpotifyAPI(
+    private var spotify = SpotifyAPI(
         authorizationManager: AuthorizationCodeFlowPKCEManager(
-            clientId: CLIENT_ID
+            clientId: ""
         )
     )
     
@@ -57,7 +56,23 @@ class SpotifyClient: Client {
      */
     private(set) var isAuthorized = false
     
-    init() {
+    init() {}
+    
+    func initialize(clientID: String?) {
+        cancellables.forEach { $0.cancel() }
+        cancellables.removeAll()
+        
+        guard let clientID = clientID else {
+            isAuthorized = false
+            return
+        }
+        
+        spotify = SpotifyAPI(
+            authorizationManager: AuthorizationCodeFlowPKCEManager(
+                clientId: clientID
+            )
+        )
+        
         // MARK: Important: Subscribe to `authorizationManagerDidChange` BEFORE
         // MARK: retrieving `authorizationManager` from persistent storage
         self.spotify.authorizationManagerDidChange
@@ -97,7 +112,6 @@ class SpotifyClient: Client {
                  is already handled in `authorizationManagerDidChange()`.
                  */
                 self.spotify.authorizationManager = authorizationManager
-                
             } catch {
                 print("could not decode authorizationManager from data:\n\(error)")
             }
