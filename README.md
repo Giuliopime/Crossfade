@@ -19,8 +19,6 @@
 
 [//]: # (</p>)
 
-The app is currently open for friends / testers only, mainly because Spotify limited access to their API to 25 users per application (which to me is kind of insane, see their [blog post](https://developer.spotify.com/blog/2025-04-15-updating-the-criteria-for-web-api-extended-access) and [developer forum thread](https://community.spotify.com/t5/Spotify-for-Developers/Updating-the-Criteria-for-Web-API-Extended-Access/td-p/6920661)).
-
 ## Contributing
 This is a plain iOS app, nothing special about it so you should be able to simply open the project with Xcode and get rollin'.
 ### things to improve
