@@ -3,25 +3,19 @@
       <img src="https://raw.githubusercontent.com/Giuliopime/Crossfade/main/website/assets/logos/logo_liquid.png" alt="Crossfade" width="124">
    </a>
 <h1 align="center">Crossfade</h1>
+<p align="center">Quickly convert song links between platforms!</p>
 <p>
 
-[//]: # (<p align="center">)
-
-[//]: # (<a href="https://apps.apple.com/us/app/crossfade-convert-music-link/id6749610876">)
-
-[//]: # (      <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg")
-
-[//]: # (      alt="Get it on App Store")
-
-[//]: # (      height="40">)
-
-[//]: # (   </a>)
-
-[//]: # (</p>)
+<p align="center">
+<a href="https://apps.apple.com/us/app/crossfade-convert-music-link/id6749610876">
+<img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Get it on App Store" height="40">
+</a>
+</p>
 
 ## Contributing
 This is a plain iOS app, nothing special about it so you should be able to simply open the project with Xcode and get rollin'.
 ### things to improve
+- [ ] use background assets for onboarding videos (reduce app size by a lot)
 - [ ] localization
 - [ ] add more platforms
 - [ ] iPad support
