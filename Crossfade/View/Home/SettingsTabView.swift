@@ -332,6 +332,24 @@ struct SettingsTabView: View {
                 }
             }
             
+            Link(destination: URL(string: "https://github.com/Giuliopime/Crossfade")!) {
+                HStack {
+                    Label(title: {
+                        Text("Source Code")
+                            .foregroundStyle(Color.primary)
+                    }, icon: {
+                        Image(systemName: "curlybraces")
+                            .foregroundStyle(Color.primary)
+                    })
+                    .labelStyle(ColorfulIconLabelStyle(color: Color.systemBackgroundSecondary))
+                    
+                    Spacer()
+                    
+                    Image(systemName: "arrow.up.right")
+                        .foregroundStyle(.gray)
+                }
+            }
+            
             Link(destination: URL(string: "https://crossfade.giuliopime.dev/privacy")!) {
                 HStack {
                     Label(title: {

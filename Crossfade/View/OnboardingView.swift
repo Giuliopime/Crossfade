@@ -82,6 +82,8 @@ struct OnboardingView: View {
     @Environment(SoundCloudClient.self) private var soundCloudClient
     @Environment(YouTubeClient.self) private var youTubeClient
     
+    @AppStorage(AppStorageKeys.spotifyClientID) var spotifyClientID: String = ""
+    
     var onClose: () -> ()
     
     @State private var stepIndex = 0
@@ -91,6 +93,7 @@ struct OnboardingView: View {
     @State private var observer: NSObjectProtocol?
     
     @State private var showAppleMusicFailedAuthAlert = false
+    @State private var showSpotifySetupAlert = false
     
     private func enablePlatform(client: any Client) async {
         let result = await client.requestAuthorization()
@@ -109,6 +112,18 @@ struct OnboardingView: View {
         stepView(currentStep)
             .background(Color.systemBackground)
             .appleMusicAuthAlert(isPresented: $showAppleMusicFailedAuthAlert)
+            .spotifyClientIDAlert(
+                isPresented: $showSpotifySetupAlert,
+                onHowToGetClientID: {
+                    openURL(URL(string: "https://crossfade.giuliopime.dev/spotify_setup")!)
+                },
+                onSave: { clientID in
+                    spotifyClientID = clientID
+                    spotifyClient.initialize(clientID: clientID)
+                    Task {
+                        await enablePlatform(client: spotifyClient)
+                    }
+                })
             .onChange(of: stepIndex) { _, newIndex in
                 if newIndex == 1 {
                     player.replaceCurrentItem(with: AVPlayerItem(url: Bundle.main.url(forResource: "video", withExtension: "mp4")!))
@@ -160,10 +175,10 @@ struct OnboardingView: View {
                 
                 VStack {
                     if step.type == .intro {
-                        Image(uiImage: UIApplication.shared.alternateIconName == nil ? UIImage(named: "AppIcon60x60") ?? UIImage() : UIImage(named: UIApplication.shared.alternateIconName!) ?? UIImage())
+                        Image(.logoLiquid)
                             .resizable()
-                            .frame(width: 64, height: 64)
-                            .cornerRadius(16)
+                            .frame(width: 80, height: 80)
+//                            .cornerRadius(16)
                             .transition(.opacity.animation(.snappy(duration: 0.2)))
                             .padding(.bottom, 4)
                     }
@@ -283,9 +298,7 @@ struct OnboardingView: View {
                     }
                 }
                 platformButton(.Spotify, authorized: spotifyClient.isAuthorized) {
-                    Task {
-                        await enablePlatform(client: spotifyClient)
-                    }
+                    showSpotifySetupAlert = true
                 }
                 platformButton(.SoundCloud, authorized: soundCloudClient.isAuthorized) {
                     Task {

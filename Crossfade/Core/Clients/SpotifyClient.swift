@@ -56,7 +56,9 @@ class SpotifyClient: Client {
      */
     private(set) var isAuthorized = false
     
-    init() {}
+    init() {
+        initialize(clientID: UserDefaults(suiteName: Identifiers.app_group)!.string(forKey: AppStorageKeys.spotifyClientID))
+    }
     
     func initialize(clientID: String?) {
         cancellables.forEach { $0.cancel() }

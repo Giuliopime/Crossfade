@@ -55,10 +55,6 @@ struct CrossfadeApp: App {
                         await handleCustomURLScheme(url)
                     }
                 }
-                .onAppear {
-                    spotifyClient.initialize(clientID: UserDefaults(suiteName: Identifiers.app_group)!.string(forKey: AppStorageKeys.spotifyClientID))
-                }
         }
-        
     }
 }
